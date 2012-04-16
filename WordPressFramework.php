@@ -8,13 +8,13 @@ if (function_exists('__autoload')) {
 spl_autoload_register(array('WordPressFramework', 'autoload'));
 
 class WordPressFramework {
-	
+
 	// the list of classes part of this framework, for autoloading.
 	private static $_classes = array(
-			'Category' => '/domain/Category.php',
-			'CategoryService' => '/services/CategoryService.php'
+			'CategoryService' => '/services/CategoryService.php',
+			'PostService' => '/services/PostService.php'
 	);
-	
+
 	/**
 	 * Class autoloader. This method is provided to be invoked within an
 	 * __autoload() magic method.
@@ -25,13 +25,38 @@ class WordPressFramework {
 			include dirname(__FILE__) . self::$_classes[$className];
 		}
 	}
-	
+
 	public static function loadWordPress($wpload = 'wp-load.php') {
 		ob_start(); // avoid wp-load printing empty characters.
 		require_once($wpload);
 		ob_end_clean();
 	}
-	
+
+	/**
+	 * Returns the real directory of a plugin
+	 * @param string $guid A unique identified for the plugin, must match a filename in the plugin folder.
+	 * @param string $wpPluginDir The root folder for the plugins. If not provided will default to WP_PLUGIN_DIR
+	 * @return string The real-path to the plugin directory.
+	 */
+	public static function getPluginDir($guid, $wpPluginDir = WP_PLUGIN_DIR) {
+		if (false === is_dir($wpPluginDir))
+			return null;
+		if (false === ($handle = opendir($wpPluginDir)))
+			return null;
+
+		$fullpath = null;
+		
+		while (false !== ($entry = readdir($handle))) {
+			$fullpath = $wpPluginDir . DIRECTORY_SEPARATOR . $entry . DIRECTORY_SEPARATOR;
+			if (true === is_dir($fullpath) && true == file_exists($fullpath . $guid)) {
+				break;
+			}
+		}		
+		closedir($handle);
+		
+		return $fullpath;
+	}
+
 }
 
 ?>
