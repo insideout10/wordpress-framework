@@ -16,20 +16,58 @@ class PostService {
 	public function findByCategorySlug($slug, $types = array('any'), $includeSubcategories = false, $offset = 0, $limit = -1) {
 		$category = get_category_by_slug($slug);
 
-		$args = array(
-					'numberposts' => $limit,
-					'offset' => $offset,
-					'post_type' => $types,
-					'post_status' => 'any',
-					'orderby' => 'rand'
-				);
+		$args = $this->getDefaultArgs($types, $offset, $limit);
+		
 		if (true == $includeSubcategories) {
 			$args = array_merge($args, array('cat' => $category->cat_ID ));
 		} else {
 			$args = array_merge($args, array('category__in' => array( $category->cat_ID )));
 		}
-
+		
 		return get_posts($args);
+	}
+	
+	/**
+	 * Find all the posts that have the specified slug names.
+	 * @param array $slugs An array of slugs (or post-names).
+	 * @return array An array of posts objects.
+	 */
+	public function findBySlugNames(&$slugs) {
+		if (false == is_array($slugs) || 0 == sizeof($slugs))
+			return array();
+		
+		global $wpdb;
+		
+		$query = "SELECT * FROM $wpdb->posts WHERE post_name = %s";
+		
+		if (1 < sizeof($slugs)) {
+			for ($i = 1; $i < sizeof($slugs); $i++) {
+				$query .= ' OR post_name = %s'; 
+			}
+		}
+
+		$posts = $wpdb->get_results( $wpdb->prepare(
+					$query,
+					$slugs
+				), OBJECT);
+		
+		return $posts;
+	}
+	
+	/**
+	 * Returns the default set of arguments for the get_posts call.
+	 * @param array $ypes An array of post types. Default 'any'. 
+	 * @param integer $offset The offset from where to start (default = 0).
+	 * @param integer $limit The maximum number of results (default = unlimited).
+	 */
+	private function getDefaultArgs($types = array('any'), $offset = 0, $limit = -1) {
+		return array(
+				'numberposts' => $limit,
+				'offset' => $offset,
+				'post_type' => $types,
+				'post_status' => 'any',
+				'orderby' => 'rand'
+		);
 	}
 	
 	/**
