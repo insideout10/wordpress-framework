@@ -53,6 +53,34 @@ class PostService {
 		
 		return $posts;
 	}
+
+	public function findRelated($postId, $types = array('any'), $offset = 0, $limit = -1) {
+		
+		$tagIDs = array();
+		foreach (get_the_tags($postId) as $tag)
+			$tagIDs[] = $tag->term_id;
+		
+		return $this->findByTags($tagIDs, $types, $offset, $limit);
+	}
+	
+	public function findByTags(&$tags, $types = array('any'), $offset = 0, $limit = -1) {
+		$args = $this->getDefaultArgs($types, $offset, $limit);
+		
+		if (is_array($tags))
+			$tagsArray = $tags;
+		
+		if (is_object($tags))
+			$tagsArray = get_object_vars($tags);
+
+		$args = array_merge(
+					$args,
+					array(
+						'tag__in' => $tagsArray
+					)
+				);
+		
+		return get_posts($args);
+	}
 	
 	/**
 	 * Returns the default set of arguments for the get_posts call.
@@ -104,6 +132,29 @@ class PostService {
 			}
 
 			$post['categories'] = $categories;
+		}
+		
+		return $posts;
+	}
+	
+	public function loadAuthors(&$posts) {
+		foreach ($posts as &$post) {
+			if (false === is_array($post))
+				$post = get_object_vars($post);
+	
+			$author = get_userdata( $post['post_author'] );
+			$post['author'] = $author->display_name;
+		}
+	
+		return $posts;
+	}
+	
+	public function loadTags(&$posts) {
+		foreach ($posts as &$post) {
+			if (false === is_array($post))
+				$post = get_object_vars($post);
+		
+			$post['tags'] = get_the_tags( $post['ID'] );
 		}
 		
 		return $posts;
