@@ -60,11 +60,12 @@ class PostService {
 		foreach (get_the_tags($postId) as $tag)
 			$tagIDs[] = $tag->term_id;
 		
-		return $this->findByTags($tagIDs, $types, $offset, $limit);
+		return $this->findByTags($tagIDs, $types, $offset, $limit, array($postId));
 	}
 	
-	public function findByTags(&$tags, $types = array('any'), $offset = 0, $limit = -1) {
-		$args = $this->getDefaultArgs($types, $offset, $limit);
+	public function findByTags(&$tags, $types = array('any'), $offset = 0, $limit = -1, $excludePosts = null) {
+
+		$args = $this->getDefaultArgs($types, $offset, $limit, $excludePosts);
 		
 		if (is_array($tags))
 			$tagsArray = $tags;
@@ -88,14 +89,25 @@ class PostService {
 	 * @param integer $offset The offset from where to start (default = 0).
 	 * @param integer $limit The maximum number of results (default = unlimited).
 	 */
-	private function getDefaultArgs($types = array('any'), $offset = 0, $limit = -1) {
-		return array(
+	private function getDefaultArgs($types = array('any'), $offset = 0, $limit = -1, $excludePosts = null) {
+		$args = array(
 				'numberposts' => $limit,
 				'offset' => $offset,
 				'post_type' => $types,
 				'post_status' => 'any',
 				'orderby' => 'rand'
 		);
+		
+		if (true == is_array($excludePosts)) {
+			$args = array_merge(
+						$args,
+						array(
+							'post__not_in' => $excludePosts
+						)
+					);
+		}
+		
+		return $args;
 	}
 	
 	/**
