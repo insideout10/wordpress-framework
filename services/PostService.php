@@ -17,6 +17,7 @@ class PostService {
 		$category = get_category_by_slug($slug);
 
 		$args = $this->getDefaultArgs($types, $offset, $limit);
+		$args['orderby'] = 'date DESC';
 		
 		if (true == $includeSubcategories) {
 			$args = array_merge($args, array('cat' => $category->cat_ID ));
@@ -24,7 +25,16 @@ class PostService {
 			$args = array_merge($args, array('category__in' => array( $category->cat_ID )));
 		}
 		
-		return get_posts($args);
+		$query = new WP_Query( $args );
+		
+		return array(
+					'offset' =>	$query->get('offset'),
+					'count' => $query->post_count,
+					'total' => $query->found_posts,
+					'next' => ($query->get('offset') + $query->post_count < $query->found_posts),
+					'previous' => ($query->get('offset') > 0),
+					'posts' => $query->posts
+				);
 	}
 	
 	/**
@@ -83,6 +93,20 @@ class PostService {
 		return get_posts($args);
 	}
 	
+	public function findAll($customArgs = null, $types = array('any'), $offset = 0, $limit = -1, $excludePosts = null) {
+	
+		$args = $this->getDefaultArgs($types, $offset, $limit, $excludePosts);
+		
+		if (null != $customArgs) {
+			$args = array_merge(
+				$args,
+				$customArgs
+			);
+		}
+	
+		return get_posts($args);
+	}
+	
 	/**
 	 * Returns the default set of arguments for the get_posts call.
 	 * @param array $ypes An array of post types. Default 'any'. 
@@ -92,6 +116,7 @@ class PostService {
 	private function getDefaultArgs($types = array('any'), $offset = 0, $limit = -1, $excludePosts = null) {
 		$args = array(
 				'numberposts' => $limit,
+				'posts_per_page' => $limit,
 				'offset' => $offset,
 				'post_type' => $types,
 				'post_status' => 'any',
