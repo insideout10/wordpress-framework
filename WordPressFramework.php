@@ -7,6 +7,9 @@ if (function_exists('__autoload')) {
 
 spl_autoload_register(array('WordPressFramework', 'autoload'));
 
+/**
+ * @version 0.1
+ */
 class WordPressFramework {
 
 	// the list of classes part of this framework, for autoloading.
@@ -15,7 +18,8 @@ class WordPressFramework {
 			'PostService' => '/services/PostService.php',
 			'AjaxService' => '/services/AjaxService.php',
 			'JsonService' => '/services/JsonService.php',
-			'XRayService' => '/services/XRayService.php'
+			'XRayService' => '/services/XRayService.php',
+			'PlugInService' => '/services/PlugInService.php'
 	);
 
 	/**

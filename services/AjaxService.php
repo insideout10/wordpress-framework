@@ -16,7 +16,7 @@ class AjaxService {
     const WP_AJAX_NOPRIV = "wp_ajax_nopriv_";
     const WP_AJAX = "wp_ajax_";
     
-    public static function setUpClass($xRayClass) {
+    public static function load($xRayClass) {
         
         $className = key($xRayClass);
         
