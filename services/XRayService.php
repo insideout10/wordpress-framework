@@ -7,13 +7,15 @@
  *  - properties
  *  - methods
  *    - meta
- *    - arguments
+ *    - parameters
  */
 class XRayService {
     
     const PATTERN = "/@(.*?) (.*)/";
     const DESCRIPTORS = "descriptors";
     const METHODS = "methods";
+    const PARAMETERS = "parameters";
+
     const KEY = 1;
     const VALUE = 2;
     
@@ -25,15 +27,26 @@ class XRayService {
         $methods = array();
         
         foreach ($reflectionClass->getMethods(ReflectionMethod::IS_PUBLIC) as $reflectionMethod) {
-            $name = $reflectionMethod->name;
+            $methodName = $reflectionMethod->name;
 
             $descriptors = self::getDescriptors(
                 $reflectionMethod->getDocComment()
             );
 
-            $methods[] = array(
-                $name => array(
-                    self::DESCRIPTORS => $descriptors
+            // get the method parameters.
+            $parameters = array();
+            
+            foreach ($reflectionMethod->getParameters() as $parameter)
+                $parameters[] = $parameter->name;
+            
+            // save the methods and their parameters to an array.
+            $methods = array_merge(
+                $methods,
+                array(
+                    $methodName => array(
+                        self::DESCRIPTORS => $descriptors,
+                        self::PARAMETERS => $parameters
+                    )
                 )
             );
         }
