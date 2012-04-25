@@ -12,7 +12,10 @@ class WordPressFramework {
 	// the list of classes part of this framework, for autoloading.
 	private static $_classes = array(
 			'CategoryService' => '/services/CategoryService.php',
-			'PostService' => '/services/PostService.php'
+			'PostService' => '/services/PostService.php',
+			'AjaxService' => '/services/AjaxService.php',
+			'JsonService' => '/services/JsonService.php',
+			'XRayService' => '/services/XRayService.php'
 	);
 
 	/**
