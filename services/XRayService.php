@@ -14,6 +14,7 @@ class XRayService {
     const PATTERN = "/@(.*?) (.*)/";
     const DESCRIPTORS = "descriptors";
     const METHODS = "methods";
+    const PROPERTIES = "properties";
     const PARAMETERS = "parameters";
 
     const KEY = 1;
@@ -22,6 +23,24 @@ class XRayService {
     public static function scan($className) {
 
         $reflectionClass = new ReflectionClass($className);
+
+        // get the methods descriptors.
+        $properties = array();
+        
+        foreach ($reflectionClass->getProperties(ReflectionProperty::IS_PUBLIC) as $reflectionProperty) {
+            $propertyName = $reflectionProperty->name;
+
+            $descriptors = self::getDescriptors(
+                $reflectionProperty->getDocComment()
+            );
+            
+            // save the methods and their parameters to an array.
+            $properties[] = array(
+                $propertyName => array(
+                    self::DESCRIPTORS => $descriptors
+                )
+            );
+        }
 
         // get the methods descriptors.
         $methods = array();
@@ -59,7 +78,8 @@ class XRayService {
         $class = array(
             $className => array(
                 self::DESCRIPTORS => $descriptors,
-                self::METHODS => $methods
+                self::METHODS => $methods,
+                self::PROPERTIES => $properties
             )
         );
 
@@ -68,11 +88,23 @@ class XRayService {
     
     private static function getDescriptors($docComment) {
         $matches = array();
-        preg_match_all(self::PATTERN, $docComment, &$matches, PREG_SET_ORDER);
+        preg_match_all(self::PATTERN, $docComment, $matches, PREG_SET_ORDER);
 
         return $matches;
     }
-    
+
+    public static function getValuesByDescritor(&$xRayClass, $key) {
+        
+        $descriptors = &$xRayClass[XRayService::DESCRIPTORS];
+        
+        $values = array();
+
+        foreach ($descriptors as $descriptor)
+            if ($key === $descriptor[XRayService::KEY])
+                $values[] = $descriptor[XRayService::VALUE];
+
+        return $values;
+    }
 }
 
 ?>

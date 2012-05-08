@@ -12,6 +12,10 @@ spl_autoload_register(array('WordPressFramework', 'autoload'));
  */
 class WordPressFramework {
 
+    const POST_TYPE = "post_type";
+    const POST_TITLE = "post_title";
+    const POST_NAME = "post_name";
+
 	// the list of classes part of this framework, for autoloading.
 	private static $_classes = array(
 			'CategoryService' => '/services/CategoryService.php',
@@ -19,7 +23,9 @@ class WordPressFramework {
 			'AjaxService' => '/services/AjaxService.php',
 			'JsonService' => '/services/JsonService.php',
 			'XRayService' => '/services/XRayService.php',
-			'PlugInService' => '/services/PlugInService.php'
+			'PlugInService' => '/services/PlugInService.php',
+			'OptionsPageService' => '/services/OptionsPageService.php',
+			'FormService' => '/services/FormService.php',
 	);
 
 	/**

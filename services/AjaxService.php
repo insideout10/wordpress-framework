@@ -6,6 +6,7 @@ class AjaxService {
     const AUTHENTICATION = "authentication";
     const ACTION = "action";
     const COMPRESSION = "compression";
+    const REQUIRE_CAPABILITIES = "requireCapabilities";
     
     const SERVICE_AJAX ="ajax";
     const AUTHENTICATION_REQUIRED = "required";
@@ -16,10 +17,17 @@ class AjaxService {
     const WP_AJAX_NOPRIV = "wp_ajax_nopriv_";
     const WP_AJAX = "wp_ajax_";
     
+    const REQUEST_BODY = "requestBody";
+    
+    const PHP_INPUT = "php://input";
+    
     public static function load($xRayClass) {
         
-        $className = key($xRayClass);
+        if (false === is_array($xRayClass))
+            $xRayClass = XRayService::scan($xRayClass);
         
+        $className = key($xRayClass);
+
         $methods = &$xRayClass[$className][XRayService::METHODS];
         
         foreach ($methods as $methodName => $method) {
@@ -30,6 +38,7 @@ class AjaxService {
             $authentication = null;
             $action = null;
             $compression = true;
+            $requireCapabilities = null;
 
             foreach ($descriptors as $descriptor) {
                 switch ($descriptor[XRayService::KEY]) {
@@ -48,6 +57,10 @@ class AjaxService {
                     case self::COMPRESSION:
                         $compression = (null === $descriptor[XRayService::VALUE] || 'false' !== $descriptor[XRayService::VALUE]);
                         break;
+                        
+                    case self::REQUIRE_CAPABILITIES:
+                        $requireCapabilities = $descriptor[XRayService::VALUE];
+                        break;
                 }
             }
             
@@ -57,7 +70,7 @@ class AjaxService {
                 $compression = var_export($compression, true);
 
                 $proxy = create_function('$arguments',
-                             __CLASS__ . "::proxy( '$className', '$methodName', \$arguments, $compression);");
+                             __CLASS__ . "::proxy( '$className', '$methodName', \$arguments, $compression, '$requireCapabilities');");
 
                 // enable public access to the ajax end-point.
                 if (null === $authentication || self::AUTHENTICATION_REQUIRED !== $authentication) {
@@ -73,18 +86,39 @@ class AjaxService {
         }        
     }
     
-    public static function proxy($className, $methodName, $arguments, $compression) {
+    public static function proxy($className, $methodName, $arguments, $compression, $requireCapabilities = null) {
         // echo "invoking $className::$methodName.\n";
+        
+        if (null !== $requireCapabilities) {
+            $capabilities = explode(",", $requireCapabilities);
+            
+            foreach ($capabilities as $capability) {
+                if (false === current_user_can($capability) ) {
+                    // TODO: format errors and send them to JSON.
+                    echo "the current user is lacking the " . $capability . " capability."; 
+                    exit;
+                }
+            }
+        }
         
         $xRayClass = XRayService::scan($className);
         $parameters = $xRayClass[$className][XRayService::METHODS][$methodName][XRayService::PARAMETERS];
 
         $args = array();
-        foreach ($parameters as $parameter)
-            if (null !== $_REQUEST[$parameter])
-                $args[] = $_REQUEST[$parameter];
+        foreach ($parameters as $parameter) {
+            if (self::REQUEST_BODY === $parameter) {
+                $args[] = file_get_contents(self::PHP_INPUT);
+                continue;
+            }
+
+            if (null === $_REQUEST[$parameter])
+                continue;
+
+            $args[] = $_REQUEST[$parameter];
+        }
         
-        $returnValue = call_user_func_array( array($className, $methodName), $args);
+        $instance = new $className();
+        $returnValue = call_user_func_array( array($instance, $methodName), $args);
         
         if (self::CALLBACK_RETURN_ERROR === $returnValue) {
             // error.
