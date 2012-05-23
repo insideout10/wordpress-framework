@@ -89,13 +89,14 @@ class AjaxService {
     public static function proxy($className, $methodName, $arguments, $compression, $requireCapabilities = null) {
         // echo "invoking $className::$methodName.\n";
         
-        if (null !== $requireCapabilities) {
+        if (null !== $requireCapabilities && '' !== $requireCapabilities) {
             $capabilities = explode(",", $requireCapabilities);
             
             foreach ($capabilities as $capability) {
                 if (false === current_user_can($capability) ) {
                     // TODO: format errors and send them to JSON.
-                    echo "the current user is lacking the " . $capability . " capability."; 
+                    header("Content-type: application/json");
+                    echo "{\"error\": \"the current user is lacking the " . $capability . " capability.\"}"; 
                     exit;
                 }
             }
