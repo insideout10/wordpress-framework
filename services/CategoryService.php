@@ -42,6 +42,18 @@ class CategoryService {
 		return $rootCategory;
 	}
 	
+	public function getPath(&$categories, $separator = '\\', $skipHome = true) {
+		foreach ($categories as &$category) {
+			# skip if skipHome has been set and this is the home category.
+			if ('0' === $category->category_parent)
+				continue;
+			
+			# add up to the path.
+			$path .= $category->name . ' ' . $separator . ' ';
+		}
+		return $path;
+	}
+	
 }
 
 ?>

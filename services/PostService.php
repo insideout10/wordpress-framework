@@ -103,7 +103,7 @@ class PostService {
 				$customArgs
 			);
 		}
-	
+		
 		return get_posts($args);
 	}
 	
@@ -165,7 +165,11 @@ class PostService {
 			
 			foreach($post_categories as $category_id){
 				$category = get_category( $category_id );
-				$categories[] = array( 'name' => $category->name, 'slug' => $category->slug );
+				$categories[] = array(
+					'id' => $category_id,
+					'name' => $category->name,
+					'slug' => $category->slug
+				);
 			}
 
 			$post['categories'] = $categories;
@@ -197,6 +201,18 @@ class PostService {
 		return $posts;
 	}
 	
+	public function getPostCategories(&$post) {
+		$categories = get_the_category($post['ID']);
+		$category = $categories[0];
+		$categories = array($category);
+		
+		while ('0' !== $category->category_parent) {
+			$categories[] = $category = get_category($category->category_parent);
+		}
+		$categories = array_reverse($categories);
+		
+		return $categories;
+	}
 }
 
 ?>
