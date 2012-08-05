@@ -1,7 +1,7 @@
 IOIO WordPress Framework
 ========================
 
-The *IOIO WordPress Framework* aims to be **an easy to use PHP library for rapid development of WordPress Plugins**. It is based on the [Inversion of Control pattern](http://en.wikipedia.org/wiki/Inversion_of_control), that allows clean instantiation of plug-in class instances:
+The *IOIO WordPress Framework* aims to be **an easy to use PHP library for rapid development of WordPress Plugins**. It is based on the [Inversion of Control pattern](http://en.wikipedia.org/wiki/Inversion_of_control), that allows clean creation of plug-in class instances:
 
 ```php
     $applicationContext = WordPress_XmlApplication::getContext( "myPlugin" );
