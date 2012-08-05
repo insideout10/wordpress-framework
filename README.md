@@ -16,6 +16,7 @@ All the configuration for PHP classes is defined in the plugin Xml file:
         <dependsOn filename="/php/myplugin/SomeOtherFile.php" />
 
         <property name="myProperty" value="has-a-value" />
+        <property name="myClass" reference="anotherClass" />
     </class>
 ```
 
