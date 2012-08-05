@@ -45,6 +45,58 @@ The *IOIO WordPress Framework* supports many features, among those:
   * JSON output and
   * compression.
 
-### License
+## Examples
 
-TBD
+*TODO*
+
+## How To
+
+*TODO*
+
+### Initial Set-up
+
+### Context Name
+
+#### Use of context name
+
+### Class configuration
+
+#### Dependencies
+
+#### Value properties
+
+##### Properties placeholders
+
+#### Reference properties
+
+### Metaboxes
+
+### Custom image sizes
+
+### Custom post types
+
+### Filters
+
+### Actions
+
+### Short Codes
+
+### Scripts
+
+### Stylesheets
+
+### Ajax Services
+
+#### Security configuration
+
+##### Authorization
+
+##### Capabilities
+
+### Logging
+
+## Road Map
+
+## License
+
+*TODO*
