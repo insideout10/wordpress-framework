@@ -45,6 +45,13 @@ The *IOIO WordPress Framework* supports many features, among those:
   * capabilities authorization,
   * JSON output and
   * compression.
+  
+## Compatibility
+
+The *IOIO WordPress Framework*  is compatible with:
+
+* PHP 5.2 or above.
+* WordPress 3.0 or above.
 
 ## Examples
 
