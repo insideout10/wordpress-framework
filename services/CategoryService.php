@@ -33,11 +33,11 @@ class CategoryService {
 				$rootCategory = &$category;
 				continue;
 			}
-			
-			if (null != $categories[$category['category_parent']]) {
-				$categories[$category['category_parent']]['childrenCategories'][] = &$category;
-			}
-		}
+
+            if ( true === array_key_exists( 'category_parent', $category ) && true === array_key_exists( $category['category_parent'], $categories) ) {
+                $categories[$category['category_parent']]['childrenCategories'][] = &$category;
+            }
+        }
 		
 		return $rootCategory;
 	}

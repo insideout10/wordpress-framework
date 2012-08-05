@@ -24,6 +24,9 @@ class OptionsPageService {
         $callback = "display";
         
         foreach ($descriptors as $descriptor) {
+            if ( false === array_key_exists( XRayService::KEY, $descriptor ) )
+                continue;
+
             $key = $descriptor[XRayService::KEY];
             $value = $descriptor[XRayService::VALUE];
             

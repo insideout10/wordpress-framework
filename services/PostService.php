@@ -67,6 +67,11 @@ class PostService {
 	public function findRelated($postId, $types = array('any'), $offset = 0, $limit = -1) {
 		
 		$tagIDs = array();
+        $tags = get_the_tags($postId);
+        
+        if (false === $tags)
+            return array();
+
 		foreach (get_the_tags($postId) as $tag)
 			$tagIDs[] = $tag->term_id;
 		
@@ -200,9 +205,33 @@ class PostService {
 		
 		return $posts;
 	}
-	
+
+	public function getPostID(&$post) {
+		$id = null;
+
+		if (true === is_numeric($post))
+			$id = $post;
+
+		if (true === is_object($post))
+			$id = $post->ID;
+
+		if (true === is_array($post))
+			$id = $post["ID"];
+
+		if (null === $id)
+			throw new Exception("Missing post ID.");
+
+		return $id;
+	}
+
 	public function getPostCategories(&$post) {
-		$categories = get_the_category($post['ID']);
+		$id = $this->getPostID($post);
+
+		$categories = get_the_category($id);
+
+        if ( 0 === count($categories) )
+            return NULL;
+
 		$category = $categories[0];
 		$categories = array($category);
 		

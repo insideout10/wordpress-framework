@@ -26,7 +26,7 @@ class PlugInService {
         $parameters = &$xRayClass[$className][XRayService::DESCRIPTORS];
         
         foreach ($parameters as $parameter) {
-            if (self::REQUIRES === $parameter[XRayService::KEY]) {
+            if ( true === array_key_exists( XRayService::KEY, $parameter ) && self::REQUIRES === $parameter[XRayService::KEY]) {
 
                 $requiredClass = $parameter[XRayService::VALUE];
                 $requiredClass = explode(" ", $requiredClass);
@@ -59,7 +59,19 @@ class PlugInService {
         
         // load ajax services from the plug-in.
         AjaxService::load($xRayClass);
-        
+
+        if ( false === is_array( $xRayClass ))
+            return;
+
+        if ( false === array_key_exists( $className, $xRayClass ) )
+            return;
+
+        if ( false === array_key_exists( XRayService::METHODS, $xRayClass[$className] ) )
+            return;
+
+        if ( false === array_key_exists( self::LOAD, $xRayClass[$className][XRayService::METHODS] ) )
+            return;
+
         if (null !== $xRayClass[$className][XRayService::METHODS][self::LOAD]) {
             call_user_func(
                 array($className, self::LOAD),

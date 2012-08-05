@@ -22,7 +22,11 @@ class XRayService {
     
     public static function scan($className) {
 
-        $reflectionClass = new ReflectionClass($className);
+        try {
+           $reflectionClass = new ReflectionClass($className);
+        } catch (Exception $e) {
+            return NULL;
+        }
 
         // get the methods descriptors.
         $properties = array();
@@ -35,11 +39,14 @@ class XRayService {
             );
             
             // save the methods and their parameters to an array.
-            $properties[] = array(
-                $propertyName => array(
-                    self::DESCRIPTORS => $descriptors
-                )
+            $properties[$propertyName] = array(
+                self::DESCRIPTORS => $descriptors
             );
+            // $properties[] = array(
+            //     $propertyName => array(
+            //         self::DESCRIPTORS => $descriptors
+            //     )
+            // );
         }
 
         // get the methods descriptors.
@@ -90,7 +97,16 @@ class XRayService {
         $matches = array();
         preg_match_all(self::PATTERN, $docComment, $matches, PREG_SET_ORDER);
 
-        return $matches;
+        $matchesWithKeys = array();
+
+        foreach ($matches as $match) {
+            if (false === array_key_exists($match[self::KEY], $matchesWithKeys) )
+                $matchesWithKeys[$match[self::KEY]] = array( $match );
+            else
+                $matchesWithKeys[$match[self::KEY]] = array_merge($matchesWithKeys[$match[self::KEY]], $match);
+        }
+
+        return $matchesWithKeys;
     }
 
     public static function getValuesByDescritor(&$xRayClass, $key) {

@@ -20,13 +20,16 @@ class AjaxService {
     const REQUEST_BODY = "requestBody";
     
     const PHP_INPUT = "php://input";
-    
+
     public static function load($xRayClass) {
-        
+        // if (class_exists(Logger)) $logger = Logger::getLogger(__CLASS__);
+
         if (false === is_array($xRayClass))
             $xRayClass = XRayService::scan($xRayClass);
         
         $className = key($xRayClass);
+
+        // $logger->debug("Load Ajax methods for class [className:$className].");
 
         $methods = &$xRayClass[$className][XRayService::METHODS];
         
@@ -40,31 +43,36 @@ class AjaxService {
             $compression = true;
             $requireCapabilities = null;
 
-            foreach ($descriptors as $descriptor) {
-                switch ($descriptor[XRayService::KEY]) {
+            foreach ($descriptors as $key => $descriptor) {
+
+                $value = $descriptor[0][XRayService::VALUE];
+
+                switch ($key) {
                     case self::SERVICE:
-                        $service = $descriptor[XRayService::VALUE];
+                        $service = $value;
                         break;
 
                     case self::AUTHENTICATION:
-                        $authentication = $descriptor[XRayService::VALUE];
+                        $authentication = $value;
                         break;
 
                     case self::ACTION:
-                        $action = $descriptor[XRayService::VALUE];
+                        $action = $value;
                         break;
 
                     case self::COMPRESSION:
-                        $compression = (null === $descriptor[XRayService::VALUE] || 'false' !== $descriptor[XRayService::VALUE]);
+                        $compression = (null === $value || 'false' !== $value);
                         break;
                         
                     case self::REQUIRE_CAPABILITIES:
-                        $requireCapabilities = $descriptor[XRayService::VALUE];
+                        $requireCapabilities = $value;
                         break;
                 }
             }
             
             if (self::SERVICE_AJAX === $service && null != $action) {
+                // $logger->debug("Binding action [action:$action] to method [methodName:$className::$methodName].");
+
                 // echo "hooking $className::$methodName to action $action.\n";
 
                 $compression = var_export($compression, true);
@@ -112,7 +120,7 @@ class AjaxService {
                 continue;
             }
 
-            if (null === $_REQUEST[$parameter])
+            if (false === array_key_exists( $parameter, $_REQUEST ) )
                 continue;
 
             $args[] = $_REQUEST[$parameter];
