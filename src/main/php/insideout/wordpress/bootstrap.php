@@ -5,7 +5,8 @@
  */
 
 // add logging support.
-require_once( dirname(dirname(dirname(__FILE__))) . "/log4php/Logger.php");
+if ( !class_exists( "Logger" ) )
+    require_once( dirname(dirname(dirname(__FILE__))) . "/log4php/Logger.php");
 
 // load the WordPressFramework.
 require_once( dirname(__FILE__) . "/XmlApplication.php");
