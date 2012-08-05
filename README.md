@@ -96,6 +96,8 @@ The *IOIO WordPress Framework* supports many features, among those:
 
 ### Logging
 
+## Contributions
+
 ## Road Map
 
 ## License
