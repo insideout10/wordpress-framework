@@ -568,22 +568,21 @@ class WordPress_XmlApplication {
         $className = (string) $attributes->name;
         $fileName = (string) $attributes->filename;
 
-        // load any dependency.
-        foreach ( $class->dependsOn as $dependsOn ) {
-            $dependsOnFileName = (string) $dependsOn->attributes()->filename;
-
-            if ( false === file_exists($rootFolder . $dependsOnFileName) )
-                throw new Exception( "The file [$dependsOnFileName] is not found, it is required by [$classID]." );
-
-            $this->logger->trace( "Including dependency [$dependsOnFileName]." );
-
-            require_once( $rootFolder . $dependsOnFileName);
-        }
-
         // load the class from the filename if the class is not yet defined.
-        if ( !class_exists( $class ) ) {
-            $this->logger->trace( "Including class filename [$fileName]." );
+        if ( !class_exists( $className ) ) {
+            // load any dependency.
+            foreach ( $class->dependsOn as $dependsOn ) {
+                $dependsOnFileName = (string) $dependsOn->attributes()->filename;
 
+                if ( false === file_exists($rootFolder . $dependsOnFileName) )
+                    throw new Exception( "The file [$dependsOnFileName] is not found, it is required by [$classID]." );
+
+                $this->logger->trace( "Including dependency [$dependsOnFileName]." );
+
+                require_once( $rootFolder . $dependsOnFileName);
+            }
+
+            $this->logger->trace( "Including class filename [$fileName]." );
             require_once( $rootFolder . $fileName);
         }
 
