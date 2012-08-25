@@ -351,6 +351,8 @@ class WordPress_XmlApplication {
     }
 
     public function loadMetaBoxesCallback() {
+        $this->logger->trace( "Adding " . count( $this->metaBoxes ) . " metabox callback(s).");
+
         foreach ( $this->metaBoxes as $metaBox ) {
             $this->logger->trace("Adding meta-box [id :: " . $metaBox["id"] . "][title :: " . $metaBox["title"] . "][postType :: " . $metaBox["postType"] . "][context :: " . $metaBox["context"] . "][priority :: " . $metaBox["priority"] . "].");
 
@@ -407,7 +409,7 @@ class WordPress_XmlApplication {
             );
         }
 
-        add_action( self::WP_ADD_META_BOXES, array( __CLASS__, "loadMetaBoxesCallback" ) );
+        add_action( self::WP_ADD_META_BOXES, array( $this, "loadMetaBoxesCallback" ) );
     }
 
     public function queueAdminScripts() {
