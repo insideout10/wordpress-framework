@@ -112,13 +112,13 @@ Example:
 
 Parameters
 
-* service, use ajaxService
-* action, the name of the action (admin-ajax.php?action=**name-of-the-action**)
-* httpMethod, the HTTP method for this action (default GET),
-* class, the name of the class that will handle the call,
-* method, the method inside the class,
-* authentication, if true, authentication is required,
-* capabilities, the list of capabilities required.
+* **service**, use ajaxService
+* **action**, the name of the action (admin-ajax.php?action=*name-of-the-action*)
+* **httpMethod**, the HTTP method for this action (default GET),
+* **class**, the name of the class that will handle the call,
+* **method**, the method inside the class,
+* **authentication**, if true, authentication is required,
+* **capabilities**, the list of capabilities required.
 
 #### Security configuration
 
