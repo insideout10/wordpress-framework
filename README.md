@@ -95,6 +95,31 @@ The *IOIO WordPress Framework*  is compatible with:
 
 ### Ajax Services
 
+Example:
+
+
+```xml
+
+    <wordpress:ajax service="ajaxService" action="wordlift.job" class="jobAjaxService" method="createJob"
+                    authentication="false" capabilities="any" httpMethod="GET" />
+
+    <wordpress:ajax service="ajaxService" action="wordlift.job" class="jobAjaxService" method="getJob"
+                    authentication="false" capabilities="any" httpMethod="POST" />
+
+    <wordpress:ajax service="ajaxService" action="wordlift.job" class="jobAjaxService" method="updateJob"
+                    authentication="false" capabilities="any" httpMethod="PUT" />
+```
+
+Parameters
+
+* service, use ajaxService
+* action, the name of the action (admin-ajax.php?action=**name-of-the-action**)
+* httpMethod, the HTTP method for this action (default GET),
+* class, the name of the class that will handle the call,
+* method, the method inside the class,
+* authentication, if true, authentication is required,
+* capabilities, the list of capabilities required.
+
 #### Security configuration
 
 ##### Authorization
