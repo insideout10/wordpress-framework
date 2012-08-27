@@ -286,6 +286,8 @@ class WordPress_XmlApplication {
             $action = (string) $attributes->action;
             $class = (string) $attributes->class;
             $method = (string) $attributes->method;
+            $httpMethod = (string) $attributes->httpMethod;
+            $httpMethod = ( "" === $httpMethod ? "GET" : $httpMethod );
             $authentication = ( "true" === (string) $attributes->authentication );
             $capabilities = (string) $attributes->capabilities;
             if ( "" === $capabilities )
@@ -304,12 +306,12 @@ class WordPress_XmlApplication {
             if ( "" === $method )
                 throw new Exception( "An Ajax method is missing the method name." );
 
-            $this->logger->trace( "Binding $action to method $class::$method [authentication :: $authentication][capabilities :: $capabilities][compression :: $compression]." );
+            $this->logger->trace( "Binding $action to method $class::$method [authentication :: $authentication][capabilities :: $capabilities][compression :: $compression][ httpMethod :: $httpMethod ]." );
 
             $ajaxService = $this->getClass( $service );
             $instance = $this->getClass( $class );
 
-            $ajaxService->bindAction( $instance, $method, $action, $authentication, $capabilities, $compression );
+            $ajaxService->bindAction( $instance, $method, $action, $authentication, $capabilities, $compression, $httpMethod );
         }
     }
 

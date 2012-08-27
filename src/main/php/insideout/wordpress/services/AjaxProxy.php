@@ -14,22 +14,35 @@ class WordPress_AjaxProxy {
 
     private $instance;
     private $method;
+    private $httpMethod;
     private $action;
     private $authentication;
     private $capabilities;
     private $compression;
     private $jsonService;
 
-    function __construct( $instance, $method, $action, $authentication, $capabilities, $compression, &$jsonService ) {
+    private $logger;
+
+    function __construct( $instance, $method, $httpMethod, $action, $authentication, $capabilities, $compression, &$jsonService, $logger ) {
         $this->instance = $instance;
         $this->method = $method;
+        $this->httpMethod = $httpMethod;
         $this->action = $action;
         $this->authentication = $authentication;
         $this->capabilities = $capabilities;
         $this->compression = $compression;
         $this->jsonService = $jsonService;
+
+        $this->logger = $logger;
     }
 
+
+    private function checkHttpMethod() {
+        $httpRequestMethod = $_SERVER['REQUEST_METHOD'];
+        $this->logger->trace( "[ httpMethod :: $this->httpMethod ][ httpRequestMethod :: $httpRequestMethod ]." );
+
+        return ( $httpRequestMethod === $this->httpMethod );
+    }
 
     private function checkCapabilities() {
         if ( "any" === $this->capabilities )
@@ -48,6 +61,12 @@ class WordPress_AjaxProxy {
     }
 
     public function invoke() {
+
+        // return if the current request method does not match the configured http method.
+        if ( false === $this->checkHttpMethod() ) {
+            $this->logger->trace( "The request method does not match the configured http method [ httpMethod :: $this->httpMethod ]." );
+            return;
+        }
 
         $this->checkCapabilities();
 

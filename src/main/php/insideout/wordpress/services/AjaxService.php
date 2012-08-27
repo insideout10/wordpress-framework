@@ -10,11 +10,11 @@ class WordPress_AjaxService implements WordPress_IAjaxService {
 
     public $jsonService;
 
-    public function bindAction( $instance, $method, $action, $authentication = false, $capabilities = "any", $compression = true ) {
+    public function bindAction( $instance, $method, $action, $authentication = false, $capabilities = "any", $compression = true, $httpMethod = "GET" ) {
 
         $this->logger->trace( "Binding $action to method $method [authentication :: $authentication][capabilities :: $capabilities][compression :: $compression]." );
 
-        $proxy = new WordPress_AjaxProxy( $instance, $method, $action, $authentication, $capabilities, $compression, $this->jsonService );
+        $proxy = new WordPress_AjaxProxy( $instance, $method, $httpMethod, $action, $authentication, $capabilities, $compression, $this->jsonService, $this->logger );
 
 
         // enable public access to the ajax end-point.
