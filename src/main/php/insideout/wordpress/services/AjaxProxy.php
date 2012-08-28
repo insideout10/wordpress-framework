@@ -123,6 +123,7 @@ class WordPress_AjaxProxy {
         $returnValue = call_user_func_array( array( $handler[ "instance" ], $handler[ "method" ] ), $args);
 
         if (self::CALLBACK_RETURN_ERROR === $returnValue) {
+            header( "X-WordPress-Framework-Ajax-Error: true" );
             // error.
             exit;
         }
