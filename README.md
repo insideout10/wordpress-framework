@@ -92,7 +92,7 @@ The *IOIO WordPress Framework*  is compatible with:
 ### Scripts
 
 ```xml
-  <wordpress:script target="admin" name="angularjs"
+	<wordpress:script target="admin" name="angularjs"
                       version="1.0.1"
                       footer="true"
                       url="/wp-content/plugins/wordlift/js/angular-1.0.1.min.js">
