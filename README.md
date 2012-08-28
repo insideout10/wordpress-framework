@@ -1,7 +1,7 @@
 IOIO WordPress Framework
 ========================
 
-The *IOIO WordPress Framework* aims to be **an easy to use PHP library for rapid development of WordPress Plugins**. It is based on the [Inversion of Control pattern](http://en.wikipedia.org/wiki/Inversion_of_control), that allows clean creation of plug-in class instances:
+The *IOIO WordPress Framework* aims to be **an easy to use PHP library for rapid development of WordPress Plugins**. It is based on the [Inversion of Control](http://en.wikipedia.org/wiki/Inversion_of_control) and [Depedency Injection](http://en.wikipedia.org/wiki/Dependency_injection) patterns, that allows clean creation of plug-in class instances:
 
 ```php
     $applicationContext = WordPress_XmlApplication::getContext( "myPlugin" );
@@ -90,6 +90,29 @@ The *IOIO WordPress Framework*  is compatible with:
 ### Short Codes
 
 ### Scripts
+
+```xml
+  <wordpress:script target="admin" name="angularjs"
+                      version="1.0.1"
+                      footer="true"
+                      url="/wp-content/plugins/wordlift/js/angular-1.0.1.min.js">
+    </wordpress:script>
+
+    <wordpress:script target="admin" name="angularjs-resource"
+                      version="1.0.1"
+                      footer="true"
+                      url="/wp-content/plugins/wordlift/js/angular-resource-1.0.1.min.js">
+        <dependsOn name="angularjs" />
+    </wordpress:script>
+```
+
+Parameters
+
+* **target**, user or admin,
+* **name**
+* **version**
+* **footer**, if *true* load the script in the footer,
+* **url**, the URL to the javascript file.
 
 ### Stylesheets
 
