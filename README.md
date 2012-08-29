@@ -57,6 +57,31 @@ The *IOIO WordPress Framework*  is compatible with:
 
 *TODO*
 
+#### An Html-based meta-box
+
+```xml
+
+	<!-- WordPress_HtmlMetaBox is provided out of the box by the WordPress Framework -->
+    <class id="entitiesHtmlMetaBox" name="WordPress_HtmlMetaBox"
+           filename="/php/insideout/wordpress/metaboxes/HtmlMetaBox.php">
+        <dependsOn filename="/php/insideout/wordpress/interfaces/IMetaBox.php" />
+
+        <property name="htmlFilename" value="/wordlift/html/insideout/wordlift/build/disambiguation.html" />
+    </class>
+
+	<!-- add some custom styling -->
+    <wordpress:style target="admin" name="wordlift.disambiguation.css"
+    	url="/wp-content/plugins/wordlift/sass/css/wordlift.disambiguation.css" />
+
+	<!-- add some scripting for a full-fledge client-side AJAX metabox -->
+    <wordpress:script target="admin" name="wordlift-disambiguation"
+                      version="1.0.0"
+                      footer="true"
+                      url="/wp-content/plugins/wordlift/js/wordlift.disambiguation.js">
+        <dependsOn name="angularjs" />
+    </wordpress:script>
+```
+
 ## How To
 
 *TODO*
