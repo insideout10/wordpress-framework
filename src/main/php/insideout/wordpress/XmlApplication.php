@@ -294,6 +294,18 @@ class WordPress_XmlApplication {
                 $capabilities = "any";
             $compression = ( "false" === (string) $attributes->compression );
 
+            $corsOrigin = (string) $attributes->corsOrigin;
+            $corsMethods = (string) $attributes->corsMethods;
+            $corsHeaders = (string) $attributes->corsHeaders;
+
+            $cors = array();
+            if ( "" !== $corsOrigin )
+                $cors[ WordPress_AjaxProxy::CORS_ORIGIN ] = $corsOrigin;
+            if ( "" !== $corsMethods )
+                $cors[ WordPress_AjaxProxy::CORS_METHODS ] = $corsMethods;
+            if ( "" !== $corsHeaders )
+                $cors[ WordPress_AjaxProxy::CORS_HEADERS ] = $corsHeaders;
+
             if ( "" === $service )
                 throw new Exception( "An Ajax method is missing its service manager." );
 
@@ -308,10 +320,11 @@ class WordPress_XmlApplication {
 
             $this->logger->trace( "Binding $action to method $class::$method [authentication :: $authentication][capabilities :: $capabilities][compression :: $compression][ httpMethod :: $httpMethod ]." );
 
+            /** @var WordPress_AjaxService $ajaxService */
             $ajaxService = $this->getClass( $service );
             $instance = $this->getClass( $class );
 
-            $ajaxService->bindAction( $instance, $method, $action, $authentication, $capabilities, $compression, $httpMethod );
+            $ajaxService->bindAction( $instance, $method, $action, $authentication, $capabilities, $compression, $httpMethod, $cors );
         }
     }
 

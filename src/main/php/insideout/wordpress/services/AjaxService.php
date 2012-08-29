@@ -12,15 +12,15 @@ class WordPress_AjaxService implements WordPress_IAjaxService {
 
     private static $proxies = array();
 
-    public function bindAction( $instance, $method, $action, $authentication = false, $capabilities = "any", $compression = true, $httpMethods = "GET" ) {
+    public function bindAction( $instance, $method, $action, $authentication = false, $capabilities = "any", $compression = true, $httpMethods = "GET", $cors = NULL ) {
 
         $httpMethods = explode( ",", $httpMethods );
 
         foreach ( $httpMethods as $httpMethod)
-            $this->bindSingleAction( $instance, $method, $action, $authentication, $capabilities, $compression, $httpMethod );
+            $this->bindSingleAction( $instance, $method, $action, $authentication, $capabilities, $compression, $httpMethod, $cors );
     }
 
-    public function bindSingleAction( $instance, $method, $action, $authentication = false, $capabilities = "any", $compression = true, $httpMethod = "GET" ) {
+    public function bindSingleAction( $instance, $method, $action, $authentication = false, $capabilities = "any", $compression = true, $httpMethod = "GET", $cors = NULL ) {
         if ( !array_key_exists( $action, self::$proxies ) ) {
             $this->logger->trace( "Creating an Ajax Proxy [ action :: $action ]." );
             self::$proxies[ $action ] = new WordPress_AjaxProxy( $action, $this->jsonService, $this->logger );
@@ -38,7 +38,7 @@ class WordPress_AjaxService implements WordPress_IAjaxService {
         }
 
         $this->logger->trace( "Binding $action to method $method [ authentication :: $authentication ][ capabilities :: $capabilities ][ compression :: $compression ][ httpMethod :: $httpMethod ]." );
-        self::$proxies[ $action ]->add( $instance, $method, $authentication, $capabilities, $httpMethod );
+        self::$proxies[ $action ]->add( $instance, $method, $authentication, $capabilities, $httpMethod, $cors );
 
     }
 }

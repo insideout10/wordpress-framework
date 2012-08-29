@@ -12,9 +12,12 @@ class WordPress_AjaxProxy {
     const CALLBACK_RETURN_ERROR = FALSE;
     const CALLBACK_RETURN_NULL = null;
 
+    const CORS_ORIGIN = "origin";
+    const CORS_METHODS = "methods";
+    const CORS_HEADERS = "headers";
+
     private $httpMethod;
     private $action;
-    private $compression;
     private $jsonService;
 
     private $httpMethods = array();
@@ -41,7 +44,7 @@ class WordPress_AjaxProxy {
 //    }
 
 
-    public function add( $instance, $method, $authentication, $capabilities, $httpMethod ) {
+    public function add( $instance, $method, $authentication, $capabilities, $httpMethod, $cors ) {
         $this->logger->trace( "Adding an action [ method :: $method ][ authentication :: $authentication ][ capabilities :: $capabilities ][ httpMethod :: $httpMethod ]." );
 
         if ( array_key_exists( $httpMethod, $this->httpMethods ) ) {
@@ -53,7 +56,8 @@ class WordPress_AjaxProxy {
             "instance" => $instance,
             "method" => $method,
             "authentication" => $authentication,
-            "capabilities" => $capabilities
+            "capabilities" => $capabilities,
+            "cors" => $cors
         );
     }
 
@@ -91,6 +95,18 @@ class WordPress_AjaxProxy {
         }
 
         $handler = $this->httpMethods[ $httpRequestMethod ];
+
+        if ( array_key_exists( "cors", $handler ) && NULL !== $handler[ "cors" ] ) {
+            $cors = &$handler[ "cors" ];
+
+            if ( array_key_exists( self::CORS_ORIGIN, $cors ) )
+                header( "Access-Control-Allow-Origin: " . $cors[ self::CORS_ORIGIN ] );
+            if ( array_key_exists( self::CORS_METHODS, $cors ) )
+                header( "Access-Control-Allow-Methods: " . $cors[ self::CORS_METHODS ] );
+            if ( array_key_exists( self::CORS_HEADERS, $cors ) )
+                header( "Access-Control-Allow-Headers: " . $cors[ self::CORS_HEADERS ] );
+        }
+
 
         $this->checkCapabilities( $handler[ "capabilities" ] );
 
