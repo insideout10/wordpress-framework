@@ -80,6 +80,11 @@ The *IOIO WordPress Framework*  is compatible with:
                       url="/wp-content/plugins/wordlift/js/wordlift.disambiguation.js">
         <dependsOn name="angularjs" />
     </wordpress:script>
+
+    <!-- add the meta-box -->
+    <wordpress:metaBox id="wordlift_entity_references_meta_box" title="WordLift Entity References" class="entitiesHtmlMetaBox"
+                       postType="post" context="side" priority="high" />
+
 ```
 
 ## How To
