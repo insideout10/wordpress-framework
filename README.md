@@ -44,9 +44,10 @@ The *IOIO WordPress Framework* supports many features, among those:
   * authentication,
   * capabilities authorization,
   * JSON output and
-  * compression,
-  * editor style-sheets (mce_css),
-  * editor configuration (tiny_mce_before_init).
+  * compression.
+* editor (TinyMCE) customization and configuration:
+  * editor style-sheets ([mce_css](http://codex.wordpress.org/Plugin_API/Filter_Reference/mce_css)),
+  * editor configuration ([tiny_mce_before_init](http://codex.wordpress.org/Plugin_API/Filter_Reference/tiny_mce_before_init)).
   
 ## Compatibility
 
