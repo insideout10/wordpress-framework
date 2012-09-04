@@ -40,7 +40,7 @@ The *IOIO WordPress Framework* supports many features, among those:
 * queuing of:
   * scripts ([wp_register_script](http://codex.wordpress.org/Function_Reference/wp_register_script), [wp_enqueue_script](http://codex.wordpress.org/Function_Reference/wp_enqueue_script)).
   * stylesheets ([wp_enqueue_style](http://codex.wordpress.org/Function_Reference/wp_enqueue_style)).
-* powerful configuration of **Ajax Services**  ([wp_ajax_(action)](http://codex.wordpress.org/Plugin_API/Action_Reference/wp_ajax_(action))) with built-in support for:
+* powerful configuration of **Ajax Services**  ([wp_ajax_(action)](http://codex.wordpress.org/Plugin_API/Action_Reference/wp_ajax_(action\))) with built-in support for:
   * authentication,
   * capabilities authorization,
   * JSON output and
