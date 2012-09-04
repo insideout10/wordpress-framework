@@ -37,6 +37,7 @@ class WordPress_XmlApplication {
     private $scripts = NULL;
     private $styles = NULL;
     private $metaBoxes = NULL;
+    private $editorProperties = array();
 
     private $rootFolder = NULL;
     private $xmlConfiguration = NULL;
@@ -235,6 +236,44 @@ class WordPress_XmlApplication {
 
         $this->loadAjax( $ajaxes );
 
+        // ***** E D I T O R *****
+        $editorProperties = $xmlConfiguration->xpath( "//$wordpress:editor" );
+        $this->logger->trace( count( $editorProperties ) . " editor option(s) found in file [$fileName]." );
+        $this->loadEditorProperties( $editorProperties );
+        add_filter( "tiny_mce_before_init", array( $this, "initializeEditorConfiguration") );
+
+    }
+
+    private function loadEditorProperties( $properties ) {
+
+        foreach ( $properties as $property) {
+            $name = (string) $property->attributes()->property;
+            $value = (string) $property->attributes()->value;
+
+            if ( empty( $name ) )
+                $this->logger->error( "An editor property is missing the property name." );
+            if ( empty( $value ) )
+                $this->logger->error( "The editor property [ property :: $name ] is missing the value." );
+
+            if ( array_key_exists( $name, $this->editorProperties ) )
+                $this->editorProperties[ $name ] .= ",$value";
+            else
+                $this->editorProperties[ $name ] = $value;
+        }
+
+    }
+
+    public function initializeEditorConfiguration( $configuration ) {
+
+        $this->logger->trace( "Initializing the Editor configuration." );
+
+        foreach ( $this->editorProperties as $property => $value )
+            if ( in_array( $property, $configuration ) && ! empty( $configuration[ $property] ) )
+                $configuration[ $property ] .= ",$value";
+            else
+                $configuration[ $property ] = $value;
+
+        return $configuration;
     }
 
     private function loadThumbnails( $thumbnails ) {
