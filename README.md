@@ -136,15 +136,39 @@ The *IOIO WordPress Framework*  is compatible with:
     </wordpress:script>
 ```
 
-Parameters
+Parameters:
 
-* **target**, user or admin,
+* **target**, the target (*required*), can be **user**, **admin** to target the front-end or the admin area respectively
 * **name**
 * **version**
 * **footer**, if *true* load the script in the footer,
 * **url**, the URL to the javascript file.
 
 ### Stylesheets
+
+To configure stylesheets, forget about filters or actions: use the **wordpress:style** element.
+
+Configuration can be applied to any kind of stylesheet, be it for the *user*, *admin* and also the *editor* (TinyMCE) area.
+
+```xml
+    <wordpress:style target="user" name="style.css"
+   					  url="/wp-content/plugins/wordlift/sass/css/style.css" />
+
+    <wordpress:style target="admin" name="admin.css"
+    				  url="/wp-content/plugins/wordlift/sass/css/admin.css" />
+
+	<wordpress:style target="editor" name="wordlift.disambiguate.css"
+				 	 url="../wp-content/plugins/wordlift/sass/css/wordlift.disambiguate.css" />
+```
+
+Parameters:
+
+* **name**, the name of the stylesheet (*required*), e.g. "style.css"
+* **url**, the URL, relative or absolute (*required*), e.g. "http://my.wordpress.blog/wp-content/plugins/my-plugin/css/style.css"
+* **target**, the target (*required*), can be **user**, **admin** or **editor** to target the front-end, the admin area or the editor iframe respectively.
+* **version**, the version (*optional*), e.g. "1.0.0"
+* **media**, the media (*optional*), e.g. "screen"
+
 
 ### Ajax Services
 

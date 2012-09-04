@@ -20,6 +20,7 @@ class WordPress_XmlApplication {
 
     const TARGET_ADMIN = "admin";
     const TARGET_USER = "user";
+    const TARGET_EDITOR = "editor";
 
     const FILTER = "filter";
     const ACTION = "action";
@@ -133,7 +134,6 @@ class WordPress_XmlApplication {
         $this->logger->trace( count($metaBoxes) . " meta-boxes(s) found in file [$fileName]." );
         $this->loadMetaBoxes( $metaBoxes );
 
-
         // ***** P O S T  T Y P E S ***** //
         // get the post types.
         $types = $xmlConfiguration->xpath( "//$wordpress:postType" );
@@ -227,6 +227,7 @@ class WordPress_XmlApplication {
         $this->logger->trace( "Hooking enqueue scripts actions." );
         add_action( "admin_enqueue_scripts", array( $this, "queueAdminScripts" ) );
         add_action( "wp_enqueue_scripts", array( $this, "queueUserScripts" ) );
+        add_filter( "mce_css", array( $this, "setEditorStyles" ) );
 
         // ***** A J A X S E R V I C E S *****
         $ajaxes = $xmlConfiguration->xpath( "//$wordpress:ajax" );
@@ -472,6 +473,28 @@ class WordPress_XmlApplication {
             wp_enqueue_script( $script["name"] );
         }
 
+    }
+
+    /**
+     * Sets the stylesheets for the editor. This method is called by the XmlApplication.
+     * @param $styles The styles parameter as passed by the mce_css filter call.
+     * @return string The updated styles parameter.
+     */
+    public function setEditorStyles( $styles ) {
+
+        $this->logger->trace( "Setting styles for the editor." );
+
+        foreach ( $this->styles as $style ) {
+            if ( WordPress_XmlApplication::TARGET_EDITOR !== $style[ "target" ] )
+                continue;
+
+            if ( ! empty( $styles ) )
+                $styles .= ",";
+
+            $styles .= $style[ "url" ];
+        }
+
+        return $styles;
     }
 
     private function getStyle( $style ) {
