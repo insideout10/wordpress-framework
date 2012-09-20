@@ -137,6 +137,7 @@ where
   * **$content** is the enclosed content (if the shortcode is used in its enclosing form),
   * **$tag** is the shortcode tag, useful for shared callback functions
 
+
 * create **class** and **shortCode** elements in the xml configuration file:
 
 ```xml
@@ -145,6 +146,13 @@ where
            
     <wordpress:shortCode name="myshortcode" class="myShortCodeClass" method="get" />
 ```
+
+where
+
+  * **name** is the shortcode,
+  * **class** is the ID of the class that will handle the short-code,
+  * **method** is the method to call in the class.
+
 
 Your editors can now use the ```myShortCode``` in their post.
 
