@@ -124,7 +124,9 @@ The *IOIO WordPress Framework*  is compatible with:
 
 In order to implement short-codes, you need to follow these steps:
 
-* create a class with a method that will be called when the short-code is inserted in a post. The signature of the method is as follows (as specified in the [official documentation](http://codex.wordpress.org/Shortcode_API)):
+#### Create a class
+
+Create a class with a method that will be called when the short-code is inserted in a post. The signature of the method is as follows (as specified in the [official documentation](http://codex.wordpress.org/Shortcode_API)):
 
 ```php
 	public function get( $attributes, $content, $tag) {
@@ -135,10 +137,11 @@ where
 
   * **$attributes** is an associative array of attributes,
   * **$content** is the enclosed content (if the shortcode is used in its enclosing form),
-  * **$tag** is the shortcode tag, useful for shared callback functions
+  * **$tag** is the shortcode tag, useful for shared callback functions.
 
+#### Configure via the Xml
 
-* create **class** and **shortCode** elements in the xml configuration file:
+Create **class** and **shortCode** elements in the xml configuration file:
 
 ```xml
     <class id="myShortCodeClass" name="MyShortCodeClass"
