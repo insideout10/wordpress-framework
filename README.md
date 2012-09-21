@@ -293,7 +293,7 @@ Then create a **wordpress:widget** element with refers to your class definition:
 
 Your widget will now appear in the *Appearance \ Widgets* menu in the administrator area, ready for use:
 
-![widgets](/site/images/widget.png "Widgets")
+![widgets](site/images/widget.png "Widgets")
 
 ### Editor Configuration (TinyMCE)
 
