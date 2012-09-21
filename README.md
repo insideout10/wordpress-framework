@@ -48,6 +48,7 @@ The *IOIO WordPress Framework* supports many features, among those:
 * editor (TinyMCE) customization and configuration:
   * editor style-sheets ([mce_css](http://codex.wordpress.org/Plugin_API/Filter_Reference/mce_css)),
   * editor configuration ([tiny_mce_before_init](http://codex.wordpress.org/Plugin_API/Filter_Reference/tiny_mce_before_init)).
+* widgets ([widgets_init](http://codex.wordpress.org/Widgets_API)[register_widget](http://codex.wordpress.org/Function_Reference/register_widget)).
   
 ## Compatibility
 
@@ -243,6 +244,56 @@ Parameters
 ##### Authorization
 
 ##### Capabilities
+
+### Widgets
+
+Widgets enjoy the same goodies as the other classes in IOIO WordPress Framework, so they can be automatically injected with your service instances or properties.
+
+#### Create a widget class
+
+To create a widget, first create a class (following the same instructions provided on the [WordPress web site](http://codex.wordpress.org/Widgets_API)).
+
+The only difference is that you need to extend the **WordPress_WidgetProxy** class instead of **WP_Widget** (WordPress_WidgetProxy in turn extends WP_Widget). That's because WordPress_WidgetProxy will provide you with the injection features:
+
+```php
+	class WordLift_SampleWidget extends WordPress_WidgetProxy {
+	 // read here on the widget structure:
+	 // http://codex.wordpress.org/Widgets_API
+	 
+		public function __construct() {
+			// widget actual processes
+		}
+
+ 		public function form( $instance ) {
+			// outputs the options form on admin
+		}
+
+		public function update( $new_instance, $old_instance ) {
+			// processes widget options to be saved
+		}
+
+		public function widget( $args, $instance ) {
+			// outputs the content of the widget
+		}
+	}
+```
+
+#### Configure the widget in the Xml configuration
+
+Then configure the class as usual with the class tag. Due to WordPress widgets implementation, the class can only be defined once (WordPress uses the class name to instantiate your widget).
+
+Then create a **wordpress:widget** element with refers to your class definition:
+
+```xml
+    <class id="sampleWidget" name="MySampleWidget"
+           filename="/php/widgets/MySampleWidget.php">
+    </class>
+    <wordpress:widget class="sampleWidget" />
+```
+
+Your widget will now appear in the *Appearance \ Widgets* menu in the administrator area, ready for use:
+
+![widgets](/site/images/widget.png "Widgets")
 
 ### Editor Configuration (TinyMCE)
 

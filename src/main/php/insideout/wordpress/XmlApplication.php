@@ -12,7 +12,7 @@ class WordPress_XmlApplication {
     const LOGGER_PROPERTY = "logger";
     const APPLICATION_CONTEXT_PROPERTY = "applicationContext";
 
-    const WP_ACTION_INIT = "init";
+    const WP_ACTION_INIT = "widgets_init";
     const WP_REGISTER_META_BOX_CB = "register_meta_box_cb";
     const WP_ADD_META_BOXES = "add_meta_boxes";
 
@@ -37,6 +37,7 @@ class WordPress_XmlApplication {
     private $scripts = NULL;
     private $styles = NULL;
     private $metaBoxes = NULL;
+    private $widgets = NULL;
     private $editorProperties = array();
 
     private $rootFolder = NULL;
@@ -242,6 +243,35 @@ class WordPress_XmlApplication {
         $this->loadEditorProperties( $editorProperties );
         add_filter( "tiny_mce_before_init", array( $this, "initializeEditorConfiguration") );
 
+        // ***** W I D G E T S *****
+        $widgets = $xmlConfiguration->xpath("//$wordpress:widget");
+        require_once( $rootFolder . "/php/insideout/wordpress/services/WidgetProxy.php" );
+        $this->loadWidgets( $widgets );
+    }
+
+    private function loadWidgets( $widgets ) {
+
+        // set the applicationContext of the WidgetProxy.
+        WordPress_WidgetProxy::$applicationContext = $this;
+
+        foreach ( $widgets as $widget) {
+            $classID = (string) $widget->attributes()->class;
+
+            if ( empty( $classID ) ) {
+                $this->logger->error( "An editor property is missing the property name." );
+                continue;
+            }
+
+            $class = $this->getClassDefinition( $classID );
+            $this->loadClass( $class );
+            $className = $this->getClassName( $class );
+
+            $this->logger->trace( "Found a widget [ classID :: $classID ][ className:: $className ]." );
+
+            register_widget( $className );
+        }
+
+        $this->logger->trace( count( $this->widgets ) . " widget(s) loaded." );
     }
 
     private function loadEditorProperties( $properties ) {
@@ -624,15 +654,27 @@ class WordPress_XmlApplication {
         );
     }
 
-    public function getClass( $classID, $rootFolder = NULL, $xmlConfiguration = NULL ) {
-
-        if (NULL === $rootFolder)
-            $rootFolder = $this->rootFolder;
-
+    public function getClassID( $className, &$xmlConfiguration = NULL ) {
         if (NULL === $xmlConfiguration)
-            $xmlConfiguration = $this->xmlConfiguration;
+            $xmlConfiguration = &$this->xmlConfiguration;
 
-        $this->logger->trace( "Loading class [$classID][rootFolder :: $rootFolder]." );
+        // get the class definition.
+        $classes = $xmlConfiguration->xpath( "//application:class[@name='$className']" );
+
+        if (0 === count($classes) )
+            throw new Exception( "Cannot find a class configured with name [$className], expecting 1." );
+
+        // check that there's only one class defined with that ID, otherwise throw an Exception.
+        if (1 !== count($classes) )
+            throw new Exception( "There are " . count($classes) . " class(es) configured with name [$className], expecting 1." );
+
+        // get the class definition: class name and its filename.
+        return (string)$classes[0]->attributes()->id;
+    }
+
+    private function getClassDefinition( $classID, &$xmlConfiguration = NULL ) {
+        if (NULL === $xmlConfiguration)
+            $xmlConfiguration = &$this->xmlConfiguration;
 
         // get the class definition.
         $classes = $xmlConfiguration->xpath( "//application:class[@id='$classID']" );
@@ -642,9 +684,19 @@ class WordPress_XmlApplication {
             throw new Exception( "There are " . count($classes) . " class(es) configured with name [$classID], expecting 1." );
 
         // get the class definition: class name and its filename.
-        $class = $classes[0];
+        return $classes[0];
+    }
+
+    private function getClassName( $class ) {
+        return (string) $class->attributes()->name;
+    }
+
+    private function loadClass( $class, $rootFolder = NULL ) {
+        if (NULL === $rootFolder)
+            $rootFolder = $this->rootFolder;
+
         $attributes = $class->attributes();
-        $className = (string) $attributes->name;
+        $className = $this->getClassName( $class );
         $fileName = (string) $attributes->filename;
 
         // load the class from the filename if the class is not yet defined.
@@ -665,10 +717,29 @@ class WordPress_XmlApplication {
             require_once( $rootFolder . $fileName);
         }
 
+    }
+
+    public function getClass( $classID, $rootFolder = NULL, $xmlConfiguration = NULL, $instance = NULL ) {
+
+        if (NULL === $rootFolder)
+            $rootFolder = $this->rootFolder;
+
+        if (NULL === $xmlConfiguration)
+            $xmlConfiguration = $this->xmlConfiguration;
+
+        $this->logger->trace( "Loading class [$classID][rootFolder :: $rootFolder]." );
+
+        // get the class definition: class name and its filename.
+        $class = $this->getClassDefinition( $classID );
+        $this->loadClass( $class );
+
         $this->logger->trace( "Creating an instance of class [$classID]." );
 
         // create a new class instance.
-        $instance = new $className();
+        if ( NULL === $instance ) {
+            $className = $this->getClassName( $class );
+            $instance = new $className();
+        }
 
         // get any properties to assign to the instance.
         $reflectionClass = new ReflectionClass( $instance );
