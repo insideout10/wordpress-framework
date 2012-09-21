@@ -48,7 +48,7 @@ The *IOIO WordPress Framework* supports many features, among those:
 * editor (TinyMCE) customization and configuration:
   * editor style-sheets ([mce_css](http://codex.wordpress.org/Plugin_API/Filter_Reference/mce_css)),
   * editor configuration ([tiny_mce_before_init](http://codex.wordpress.org/Plugin_API/Filter_Reference/tiny_mce_before_init)).
-* widgets ([widgets_init](http://codex.wordpress.org/Widgets_API)[register_widget](http://codex.wordpress.org/Function_Reference/register_widget)).
+* widgets ([widgets_init](http://codex.wordpress.org/Widgets_API), [register_widget](http://codex.wordpress.org/Function_Reference/register_widget)).
   
 ## Compatibility
 
@@ -293,7 +293,7 @@ Then create a **wordpress:widget** element with refers to your class definition:
 
 Your widget will now appear in the *Appearance \ Widgets* menu in the administrator area, ready for use:
 
-![widgets](wordpress-framework/master/site/images/widget.png "Widgets")
+![widgets](https://raw.github.com/insideout10/wordpress-framework/master/site/images/widget.png "Widgets")
 
 ### Editor Configuration (TinyMCE)
 
