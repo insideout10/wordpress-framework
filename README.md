@@ -256,7 +256,7 @@ To create a widget, first create a class (following the same instructions provid
 The only difference is that you need to extend the **WordPress_WidgetProxy** class instead of **WP_Widget** (WordPress_WidgetProxy in turn extends WP_Widget). That's because WordPress_WidgetProxy will provide you with the injection features:
 
 ```php
-	class WordLift_SampleWidget extends WordPress_WidgetProxy {
+	class MySampleWidget extends WordPress_WidgetProxy {
 	 // read here on the widget structure:
 	 // http://codex.wordpress.org/Widgets_API
 	 
