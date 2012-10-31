@@ -50,6 +50,7 @@ The *IOIO WordPress Framework* supports many features, among those:
   * editor configuration ([tiny_mce_before_init](http://codex.wordpress.org/Plugin_API/Filter_Reference/tiny_mce_before_init))
 * widgets ([widgets_init](http://codex.wordpress.org/Widgets_API), [register_widget](http://codex.wordpress.org/Function_Reference/register_widget))
 * admin menus ([add_options_page](http://codex.wordpress.org/Function_Reference/add_options_page))
+* settings ([add_settings_section](http://codex.wordpress.org/Function_Reference/add_settings_section), [add_settings_field](http://codex.wordpress.org/Function_Reference/add_settings_field), [register_setting](http://codex.wordpress.org/Function_Reference/register_setting), [settings_fields](http://codex.wordpress.org/Function_Reference/settings_fields), [do_settings_sections](http://codex.wordpress.org/Function_Reference/do_settings_sections), [get_option](http://codex.wordpress.org/Function_Reference/get_option))
   
 ## Compatibility
 
