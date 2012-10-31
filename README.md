@@ -340,6 +340,57 @@ XML configuration:
     method="writePageContent" />
 ```
 
+### Settings
+
+To create settings pages, it's not necessary to write any code. Just set the required text settings in the configuration Xml.
+
+First configure the *settings proxy* class provided by WordPress Framework:
+```xml
+    <class id="settingsProxy" name="WordPress_SettingsProxy"
+        filename="/php/insideout/wordpress/services/SettingsProxy.php" />
+```
+
+Then configure the settings tree. The **id** attribute in the **field** element is the field name and can be later retrieved using the WordPress *get_option* function:
+
+```xml
+    <wordpress:settings 
+        menuTitle="My Menu Title"
+        pageTitle="My Page Title"
+        capability="manage_options"
+        menuSlug="my_settings"
+        proxy="settingsProxy">
+
+        <wordpress:section
+            id="my_settings_section_1"
+            title="Section no.1">
+
+            <wordpress:field
+                id="my_settings_section_1_field_1"
+                title="Field 1" />
+
+            <wordpress:field
+                id="my_settings_section_1_field_2"
+                title="Field 2" />
+
+        </wordpress:section>
+
+        <wordpress:section
+            id="my_settings_section_2"
+            title="Section no.2">
+
+            <wordpress:field
+                id="my_settings_section_2_field_3"
+                title="Field 3" />
+
+            <wordpress:field
+                id="my_settings_section_2_field_4"
+                title="Field 4" />
+
+        </wordpress:section>
+
+    </wordpress:settings>
+```
+
 ### Logging
 
 ## Contributions

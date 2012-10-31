@@ -71,7 +71,7 @@ EOF;
 		$id = $args[ "id" ];
 		$htmlId = htmlentities( $id );
 		$options = get_option( $id );
-		$value = ( array_key_exists( "text_string", $options ) ? $options[ "text_string" ] : "" );
+		$value = ( is_array( $options ) && array_key_exists( "text_string", $options ) ? $options[ "text_string" ] : "" );
 		$htmlValue = htmlentities( $value );
 
 		echo "<input id=\"$htmlId\" name=\"" . $htmlId . "[text_string]\" size=\"40\" type=\"text\" value=\"$htmlValue\" />";
