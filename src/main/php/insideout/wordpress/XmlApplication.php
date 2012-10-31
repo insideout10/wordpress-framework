@@ -40,6 +40,7 @@ class WordPress_XmlApplication {
     private $widgets = NULL;
     private $editorProperties = array();
     private $adminMenus = NULL;
+    private $settings = NULL;
 
     private $rootFolder = NULL;
     private $xmlConfiguration = NULL;
@@ -104,9 +105,8 @@ class WordPress_XmlApplication {
         $this->xmlConfiguration = $xmlConfiguration;
 
         // register the wordpress namespace.
-        $wordpress = "wordpress";
         $xmlConfiguration->registerXPathNamespace( "application", self::APPLICATION_NAMESPACE );
-        $xmlConfiguration->registerXPathNamespace( $wordpress, self::WORDPRESS_NAMESPACE );
+        $xmlConfiguration->registerXPathNamespace( "wordpress", self::WORDPRESS_NAMESPACE );
 
         // ***** C O N T E X T   N A M E ***** //
         $contexts = $xmlConfiguration->xpath( "//application:context" );
@@ -123,7 +123,7 @@ class WordPress_XmlApplication {
 
         // ***** T H U M B N A I L S ***** //
         // get the thumbnails.
-        $thumbnails = $xmlConfiguration->xpath( "//$wordpress:thumbnail" );
+        $thumbnails = $xmlConfiguration->xpath( "//wordpress:thumbnail" );
         $this->logger->trace( count($thumbnails) . " thumbnail(s) found in file [$fileName]." );
         $this->loadThumbnails( $thumbnails );
 
@@ -133,13 +133,13 @@ class WordPress_XmlApplication {
         $this->loadProperties( $properties );
 
         // ***** M E T A B O X E S ***** //
-        $metaBoxes = $xmlConfiguration->xpath( "//$wordpress:metaBox" );
+        $metaBoxes = $xmlConfiguration->xpath( "//wordpress:metaBox" );
         $this->logger->trace( count($metaBoxes) . " meta-boxes(s) found in file [$fileName]." );
         $this->loadMetaBoxes( $metaBoxes );
 
         // ***** P O S T  T Y P E S ***** //
         // get the post types.
-        $types = $xmlConfiguration->xpath( "//$wordpress:postType" );
+        $types = $xmlConfiguration->xpath( "//wordpress:postType" );
         $this->logger->trace( count($types) . " type(s) found in file [$fileName]." );
 
         foreach ($types as $type) {
@@ -172,17 +172,17 @@ class WordPress_XmlApplication {
 
         // ***** F I L T E R S *****
         // get the filters.
-        $filters = $xmlConfiguration->xpath( "//$wordpress:filter" );
+        $filters = $xmlConfiguration->xpath( "//wordpress:filter" );
         $this->logger->trace( count($filters) . " filter(s) found in file [$fileName]." );
         $this->loadActionOrFilter( self::FILTER, $filters );
 
         // ***** A C T I O N S *****
-        $actions = $xmlConfiguration->xpath( "//$wordpress:action" );
+        $actions = $xmlConfiguration->xpath( "//wordpress:action" );
         $this->logger->trace( count($actions) . " action(s) found in file [$fileName]." );
         $this->loadActionOrFilter( self::ACTION, $actions );
 
         // ***** S H O R T C O D E S *****
-        $shortCodes = $xmlConfiguration->xpath( "//$wordpress:shortCode" );
+        $shortCodes = $xmlConfiguration->xpath( "//wordpress:shortCode" );
         $this->logger->trace( count($filters) . " short-code(s) found in file [$fileName]." );
 
         // each filter has a name and optionally a priority and acceptedArguments.
@@ -210,7 +210,7 @@ class WordPress_XmlApplication {
 
         // ***** S T Y L E S *****
         // get the filters.
-        $styles = $xmlConfiguration->xpath( "//$wordpress:style" );
+        $styles = $xmlConfiguration->xpath( "//wordpress:style" );
         $this->logger->trace( count($styles) . " style(s) found in file [$fileName]." );
 
         $this->styles = array();
@@ -219,7 +219,7 @@ class WordPress_XmlApplication {
         }
 
         /***** S C R I P T S *****/
-        $scripts = $xmlConfiguration->xpath( "//$wordpress:script" );
+        $scripts = $xmlConfiguration->xpath( "//wordpress:script" );
         $this->logger->trace( count($scripts) . " script(s) found in file [$fileName]." );
 
         $this->scripts = array();
@@ -233,25 +233,92 @@ class WordPress_XmlApplication {
         add_filter( "mce_css", array( $this, "setEditorStyles" ) );
 
         // ***** A J A X S E R V I C E S *****
-        $ajaxes = $xmlConfiguration->xpath( "//$wordpress:ajax" );
+        $ajaxes = $xmlConfiguration->xpath( "//wordpress:ajax" );
         $this->logger->trace( count($ajaxes) . " ajax service(s) found in file [$fileName]." );
 
         $this->loadAjax( $ajaxes );
 
         // ***** E D I T O R *****
-        $editorProperties = $xmlConfiguration->xpath( "//$wordpress:editor" );
+        $editorProperties = $xmlConfiguration->xpath( "//wordpress:editor" );
         $this->logger->trace( count( $editorProperties ) . " editor option(s) found in file [$fileName]." );
         $this->loadEditorProperties( $editorProperties );
         add_filter( "tiny_mce_before_init", array( $this, "initializeEditorConfiguration") );
 
         // ***** W I D G E T S *****
-        $widgets = $xmlConfiguration->xpath("//$wordpress:widget");
+        $widgets = $xmlConfiguration->xpath("//wordpress:widget");
         require_once( $rootFolder . "/php/insideout/wordpress/services/WidgetProxy.php" );
         $this->loadWidgets( $widgets );
 
         // ***** A D M I N  M E N U S *****
-        $this->adminMenus = $xmlConfiguration->xpath("//$wordpress:adminMenu");
+        $this->adminMenus = $xmlConfiguration->xpath("//wordpress:adminMenu");
         add_action( "admin_menu", array( $this, "loadAdminMenus" ) );
+
+        // ***** S E T T I N G S *****
+        $this->settings = $xmlConfiguration->xpath("//wordpress:settings");
+        add_action( "admin_menu", array( $this, "loadSettings" ) );
+    }
+
+    public function loadSettings() {
+
+        foreach ( $this->settings as $setting ) {
+            $attributes = $setting->attributes();
+            $proxy = (string) $attributes->proxy;
+            if ( empty( $proxy ) )
+                $this->logger->error( "The proxy attribute is required." );
+
+
+            $pageTitle = (string) $attributes->pageTitle;
+            if ( empty( $pageTitle ) )
+                $this->logger->error( "The pageTitle attribute is required." );
+
+            $menuTitle = (string) $attributes->menuTitle;
+            if ( empty( $menuTitle ) )
+                $this->logger->error( "The menuTitle attribute is required." );
+
+            $capability = (string) $attributes->capability;
+            if ( empty( $capability ) )
+                $this->logger->error( "The capability attribute is required." );
+
+
+            $menuSlug = (string) $attributes->menuSlug;
+            if ( empty( $menuSlug ) )
+                $this->logger->error( "The menuSlug attribute is required." );
+
+
+            $sections = $setting->xpath("wordpress:section");
+            $sectionsArray = array();
+            foreach ( $sections as $section ) {
+
+                // get the fields.
+                $fields = $section->xpath("wordpress:field");
+                $fieldsArray = array();
+                foreach ( $fields as $field ) {
+                    $title = (string) $field->attributes()->title;
+                    $id = (string) $field->attributes()->id;
+                    $fieldsArray[] = array(
+                            "id" => $id,
+                            "title" => $title
+                        );
+                }
+
+                // store the section.
+                $id = (string) $section->attributes()->id;
+                $title = (string) $section->attributes()->title;
+                $sectionsArray[] = array(
+                        "id" => $id,
+                        "title" => $title,
+                        "fields" => $fieldsArray
+                    );
+
+            }
+
+            $proxyInstance = $this->getClass( $proxy, $this->rootFolder, $this->xmlConfiguration );
+            $proxyInstance->setPageTitle( $pageTitle );
+            $proxyInstance->setMenuSlug( $menuSlug );
+            $proxyInstance->setSections( $sectionsArray );
+
+            add_options_page( $pageTitle, $menuTitle, $capability, $menuSlug, array( $proxyInstance, "writePage" ) );
+        }
     }
 
     public function loadAdminMenus() {
