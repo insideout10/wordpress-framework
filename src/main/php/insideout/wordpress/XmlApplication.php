@@ -39,6 +39,7 @@ class WordPress_XmlApplication {
     private $metaBoxes = NULL;
     private $widgets = NULL;
     private $editorProperties = array();
+    private $adminMenus = NULL;
 
     private $rootFolder = NULL;
     private $xmlConfiguration = NULL;
@@ -247,6 +248,45 @@ class WordPress_XmlApplication {
         $widgets = $xmlConfiguration->xpath("//$wordpress:widget");
         require_once( $rootFolder . "/php/insideout/wordpress/services/WidgetProxy.php" );
         $this->loadWidgets( $widgets );
+
+        // ***** A D M I N  M E N U S *****
+        $this->adminMenus = $xmlConfiguration->xpath("//$wordpress:adminMenu");
+        add_action( "admin_menu", array( $this, "loadAdminMenus" ) );
+    }
+
+    public function loadAdminMenus() {
+        if ( NULL === $this->adminMenus )
+            return;
+
+        foreach ( $this->adminMenus as $menu ) {
+            $attributes = $menu->attributes();
+
+            $pageTitle = (string) $attributes->pageTitle;
+            if ( empty( $pageTitle ) )
+                $this->logger->error( "The pageTitle attribute is required." );
+
+            $menuTitle = (string) $attributes->menuTitle;
+            if ( empty( $menuTitle ) )
+                $this->logger->error( "The menuTitle attribute is required." );
+
+            $capability = (string) $attributes->capability;
+            if ( empty( $capability ) )
+                $this->logger->error( "The capability attribute is required." );
+
+            $menuSlug = (string) $attributes->menuSlug;
+            if ( empty( $menuSlug ) )
+                $this->logger->error( "The menuSlug attribute is required." );
+
+            $class = (string) $attributes->class;
+            $method = (string) $attributes->method;
+            if ( ! empty( $class ) && ! empty( $method ) ) {
+                $instance = $this->getClass( $class, $this->rootFolder, $this->xmlConfiguration );
+                add_options_page( $pageTitle, $menuTitle, $capability, $menuSlug, array( $instance, $method ) );
+            }
+            else
+                add_options_page( $pageTitle, $menuTitle, $capability, $menuSlug );
+        }
+
     }
 
     private function loadWidgets( $widgets ) {

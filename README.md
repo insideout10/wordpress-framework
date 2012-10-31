@@ -46,9 +46,10 @@ The *IOIO WordPress Framework* supports many features, among those:
   * JSON output and
   * compression.
 * editor (TinyMCE) customization and configuration:
-  * editor style-sheets ([mce_css](http://codex.wordpress.org/Plugin_API/Filter_Reference/mce_css)),
-  * editor configuration ([tiny_mce_before_init](http://codex.wordpress.org/Plugin_API/Filter_Reference/tiny_mce_before_init)).
-* widgets ([widgets_init](http://codex.wordpress.org/Widgets_API), [register_widget](http://codex.wordpress.org/Function_Reference/register_widget)).
+  * editor style-sheets ([mce_css](http://codex.wordpress.org/Plugin_API/Filter_Reference/mce_css))
+  * editor configuration ([tiny_mce_before_init](http://codex.wordpress.org/Plugin_API/Filter_Reference/tiny_mce_before_init))
+* widgets ([widgets_init](http://codex.wordpress.org/Widgets_API), [register_widget](http://codex.wordpress.org/Function_Reference/register_widget))
+* admin menus ([add_options_page](http://codex.wordpress.org/Function_Reference/add_options_page))
   
 ## Compatibility
 
@@ -308,6 +309,36 @@ Parameters:
 * **property**, the name of the editor configuration property (*required*),
 * **value**, the value to add to the property (*required*).
 
+### Admin Menus
+
+To add administrative menus:
+* first create a class and a method that will print the page output
+* then configure the Xml plugin file to set-up the menu.
+
+PHP Sample Menu class:
+
+```php
+  class SampleAdminMenu {
+    public function writePageContent() {
+      echo "Hello!";
+    }
+  }
+```
+
+XML configuration:
+```xml
+  <class id="sampleAdminMenu"
+    name="SampleAdminMenu"
+    filename="/php/SampleAdminMenu.php" />
+  
+  <wordpress:adminMenu
+    pageTitle="Page Title"
+    menuTitle="Menu Title"
+    capability="manage_options"
+    menuSlug="sample_admin_menu"
+    class="sampleAdminMenu"
+    method="writePageContent" />
+```
 
 ### Logging
 
