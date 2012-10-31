@@ -392,6 +392,9 @@ Then configure the settings tree. The **id** attribute in the **field** element 
     </wordpress:settings>
 ```
 
+This page will appear in the Administration area:
+![settings](https://raw.github.com/insideout10/wordpress-framework/master/site/images/settings.png "Settings")
+
 ### Logging
 
 ## Contributions
