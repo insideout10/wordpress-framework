@@ -256,6 +256,21 @@ class WordPress_XmlApplication {
         // ***** S E T T I N G S *****
         $this->settings = $xmlConfiguration->xpath("//wordpress:settings");
         add_action( "admin_menu", array( $this, "loadSettings" ) );
+
+        // ***** N O T I C E S *****
+        $notices = $xmlConfiguration->xpath("//wordpress:notice");
+        foreach ( $notices as $notice ) {
+            $class = (string) $notice->attributes()->class;
+            $method = (string) $notice->attributes()->method;
+            if ( empty( $class ) || empty( $method ) ) {
+                $logger->error( "The attributes class and method are required (notice)." );
+                continue;
+            }
+
+            $instance = $this->getClass( $class, $this->rootFolder, $this->xmlConfiguration );
+
+            add_action( "admin_notices", array( $instance, $method ) );    
+        }
     }
 
     public function loadSettings() {
