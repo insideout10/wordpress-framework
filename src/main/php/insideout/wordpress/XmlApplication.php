@@ -263,7 +263,7 @@ class WordPress_XmlApplication {
             $class = (string) $notice->attributes()->class;
             $method = (string) $notice->attributes()->method;
             if ( empty( $class ) || empty( $method ) ) {
-                $logger->error( "The attributes class and method are required (notice)." );
+                $this->logger->error( "The attributes class and method are required (notice)." );
                 continue;
             }
 
@@ -271,6 +271,22 @@ class WordPress_XmlApplication {
 
             add_action( "admin_notices", array( $instance, $method ) );    
         }
+
+        // ***** A C T I V A T E  H O O K S *****
+        // $activates = $xmlConfiguration->xpath("//wordpress:activate");
+        // foreach ( $activates as $activate ) {
+        //     $class = (string) $activate->attributes()->class;
+        //     $method = (string) $activate->attributes()->method;
+        //     if ( empty( $class ) || empty( $method ) ) {
+        //         $this->logger->error( "The attributes class and method are required (activate)." );
+        //         continue;
+        //     }
+
+        //     $instance = $this->getClass( $class, $this->rootFolder, $this->xmlConfiguration );
+
+        //     register_activation_hook( __FILE__, array( $instance, $method ) );
+        // }
+
     }
 
     public function loadSettings() {
