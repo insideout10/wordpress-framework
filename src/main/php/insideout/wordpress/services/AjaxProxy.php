@@ -8,6 +8,7 @@
 class WordPress_AjaxProxy {
 
     const REQUEST_BODY = "requestBody";
+    const HEADERS = "headers";
     const PHP_INPUT = "php://input";
     const CALLBACK_RETURN_ERROR = FALSE;
     const CALLBACK_RETURN_NULL = null;
@@ -124,6 +125,11 @@ class WordPress_AjaxProxy {
                 continue;
             }
 
+            if (self::HEADERS === $parameterName) {
+                array_push( $args, getallheaders() );
+                continue;
+            }
+
             if ( !array_key_exists( $parameterName, $_REQUEST ) ) {
                 if ( !$parameter->isOptional() )
                     throw new Exception( "Parameter [$parameterName] is required [ action :: " . $handler[ "action"] . " ]." );
@@ -153,6 +159,24 @@ class WordPress_AjaxProxy {
 
         exit;
     }
+
+    // private function headers( $rawHeaders ) {
+
+    //     $headers = array();
+
+    //     foreach ( $rawHeaders as $headerLine ) {
+    //         $this->logger->trace( $headerLine );
+
+    //         $header = explode( ": ", $headerLine );
+    //         if ( 1 >= count( $header ) )
+    //             continue;
+
+    //         $headers[ $header[0] ] = $header[1];
+    //     }
+
+    //     return $headers;
+
+    // }
 }
 
 ?>
