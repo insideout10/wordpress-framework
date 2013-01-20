@@ -22,7 +22,7 @@ class WordPress_AjaxService implements WordPress_IAjaxService {
 
     public function bindSingleAction( $instance, $method, $action, $authentication = false, $capabilities = "any", $compression = true, $httpMethod = "GET", $cors = NULL ) {
         if ( !array_key_exists( $action, self::$proxies ) ) {
-            $this->logger->trace( "Creating an Ajax Proxy [ action :: $action ]." );
+            // $this->logger->trace( "Creating an Ajax Proxy [ action :: $action ]." );
             self::$proxies[ $action ] = new WordPress_AjaxProxy( $action, $this->jsonService, $this->logger );
 
             // enable public access to the ajax end-point.
@@ -37,7 +37,7 @@ class WordPress_AjaxService implements WordPress_IAjaxService {
             add_action(self::WP_AJAX . $action, array( self::$proxies[ $action ], self::INVOKE ) );
         }
 
-        $this->logger->trace( "Binding $action to method $method [ authentication :: $authentication ][ capabilities :: $capabilities ][ compression :: $compression ][ httpMethod :: $httpMethod ]." );
+        // $this->logger->trace( "Binding $action to method $method [ authentication :: $authentication ][ capabilities :: $capabilities ][ compression :: $compression ][ httpMethod :: $httpMethod ]." );
         self::$proxies[ $action ]->add( $instance, $method, $authentication, $capabilities, $httpMethod, $cors );
 
     }

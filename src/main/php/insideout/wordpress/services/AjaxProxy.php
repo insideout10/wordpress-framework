@@ -46,7 +46,7 @@ class WordPress_AjaxProxy {
 
 
     public function add( $instance, $method, $authentication, $capabilities, $httpMethod, $cors ) {
-        $this->logger->trace( "Adding an action [ method :: $method ][ authentication :: $authentication ][ capabilities :: $capabilities ][ httpMethod :: $httpMethod ]." );
+        // $this->logger->trace( "Adding an action [ method :: $method ][ authentication :: $authentication ][ capabilities :: $capabilities ][ httpMethod :: $httpMethod ]." );
 
         if ( array_key_exists( $httpMethod, $this->httpMethods ) ) {
             $this->logger->error( "An action has already been set [ httpMethod :: $httpMethod ]." );
@@ -64,7 +64,7 @@ class WordPress_AjaxProxy {
 
     private function checkHttpMethod() {
         $httpRequestMethod = $_SERVER['REQUEST_METHOD'];
-        $this->logger->trace( "[ httpMethod :: $this->httpMethod ][ httpRequestMethod :: $httpRequestMethod ]." );
+        // $this->logger->trace( "[ httpMethod :: $this->httpMethod ][ httpRequestMethod :: $httpRequestMethod ]." );
 
         return ( $httpRequestMethod === $this->httpMethod );
     }
@@ -165,7 +165,7 @@ class WordPress_AjaxProxy {
     //     $headers = array();
 
     //     foreach ( $rawHeaders as $headerLine ) {
-    //         $this->logger->trace( $headerLine );
+    //         // $this->logger->trace( $headerLine );
 
     //         $header = explode( ": ", $headerLine );
     //         if ( 1 >= count( $header ) )

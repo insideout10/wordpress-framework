@@ -4,6 +4,7 @@
  * Date: 15/07/12 12:15
  */
 
+
 class WordPress_XmlApplication {
 
     const APPLICATION_NAMESPACE = "http://purl.org/insideout/configuration";
@@ -40,6 +41,7 @@ class WordPress_XmlApplication {
     private $widgets = NULL;
     private $editorProperties = array();
     private $adminMenus = NULL;
+    private $subAdminMenus = NULL;
     private $settings = NULL;
 
     private $rootFolder = NULL;
@@ -88,7 +90,7 @@ class WordPress_XmlApplication {
         $loggerConfiguration = $rootFolder . $loggerConfiguration;
 
         // get the logger.
-        $this->logger = $this->getLogger( $loggerConfiguration );
+        $this->logger = WordPress_XmlApplication::getLogger( $loggerConfiguration );
 
         // check that we're in WordPress.
         if ( false === function_exists( "add_filter" ) )
@@ -99,7 +101,7 @@ class WordPress_XmlApplication {
             throw new Exception( "Xml Application configuration file [$fileName] is not found." );
 
         // load the configuration.
-        $this->logger->trace( "Creating application from [$fileName]." );
+        // $this->logger->trace( "Creating application from [$fileName]." );
         $xmlConfiguration = simplexml_load_file ( $fileName );
 
         $this->xmlConfiguration = $xmlConfiguration;
@@ -116,7 +118,7 @@ class WordPress_XmlApplication {
             $contextName = (string) $context->attributes()->name;
 
             if ( "" !== $contextName ) {
-                $this->logger->trace( "Found a named context [$contextName]." );
+                // $this->logger->trace( "Found a named context [$contextName]." );
                 self::addContext( $contextName, $this );
             }
         }
@@ -124,23 +126,23 @@ class WordPress_XmlApplication {
         // ***** T H U M B N A I L S ***** //
         // get the thumbnails.
         $thumbnails = $xmlConfiguration->xpath( "//wordpress:thumbnail" );
-        $this->logger->trace( count($thumbnails) . " thumbnail(s) found in file [$fileName]." );
+        // $this->logger->trace( count($thumbnails) . " thumbnail(s) found in file [$fileName]." );
         $this->loadThumbnails( $thumbnails );
 
         // ***** P R O P E R T I E S ***** //
         $properties = $xmlConfiguration->xpath( "//application:property" );
-        $this->logger->trace( count($properties) . " property(ies) found in file [$fileName]." );
+        // $this->logger->trace( count($properties) . " property(ies) found in file [$fileName]." );
         $this->loadProperties( $properties );
 
         // ***** M E T A B O X E S ***** //
         $metaBoxes = $xmlConfiguration->xpath( "//wordpress:metaBox" );
-        $this->logger->trace( count($metaBoxes) . " meta-boxes(s) found in file [$fileName]." );
+        // $this->logger->trace( count($metaBoxes) . " meta-boxes(s) found in file [$fileName]." );
         $this->loadMetaBoxes( $metaBoxes );
 
         // ***** P O S T  T Y P E S ***** //
         // get the post types.
         $types = $xmlConfiguration->xpath( "//wordpress:postType" );
-        $this->logger->trace( count($types) . " type(s) found in file [$fileName]." );
+        // $this->logger->trace( count($types) . " type(s) found in file [$fileName]." );
 
         foreach ($types as $type) {
             $typeName = (string) $type->attributes()->name;
@@ -157,7 +159,7 @@ class WordPress_XmlApplication {
             if (NULL === $instance || false === method_exists( $instance, "getArguments"))
                 throw new Exception( "A postType configuration is invalid. The referenced class does not exist or does not support the getArguments method." );
 
-            $this->logger->trace( "Registering post custom type [$typeName]." );
+            // $this->logger->trace( "Registering post custom type [$typeName]." );
 
             $postTypeConfiguration = $instance->getArguments();
             $postTypeConfiguration[ self::WP_REGISTER_META_BOX_CB ] = array( $instance, self::REGISTER_META_BOX_CALLBACK );
@@ -173,17 +175,17 @@ class WordPress_XmlApplication {
         // ***** F I L T E R S *****
         // get the filters.
         $filters = $xmlConfiguration->xpath( "//wordpress:filter" );
-        $this->logger->trace( count($filters) . " filter(s) found in file [$fileName]." );
+        // $this->logger->trace( count($filters) . " filter(s) found in file [$fileName]." );
         $this->loadActionOrFilter( self::FILTER, $filters );
 
         // ***** A C T I O N S *****
         $actions = $xmlConfiguration->xpath( "//wordpress:action" );
-        $this->logger->trace( count($actions) . " action(s) found in file [$fileName]." );
+        // $this->logger->trace( count($actions) . " action(s) found in file [$fileName]." );
         $this->loadActionOrFilter( self::ACTION, $actions );
 
         // ***** S H O R T C O D E S *****
         $shortCodes = $xmlConfiguration->xpath( "//wordpress:shortCode" );
-        $this->logger->trace( count($filters) . " short-code(s) found in file [$fileName]." );
+        // $this->logger->trace( count($filters) . " short-code(s) found in file [$fileName]." );
 
         // each filter has a name and optionally a priority and acceptedArguments.
         foreach ( $shortCodes as $shortCode ) {
@@ -211,7 +213,7 @@ class WordPress_XmlApplication {
         // ***** S T Y L E S *****
         // get the filters.
         $styles = $xmlConfiguration->xpath( "//wordpress:style" );
-        $this->logger->trace( count($styles) . " style(s) found in file [$fileName]." );
+        // $this->logger->trace( count($styles) . " style(s) found in file [$fileName]." );
 
         $this->styles = array();
         foreach ($styles as $style) {
@@ -220,27 +222,27 @@ class WordPress_XmlApplication {
 
         /***** S C R I P T S *****/
         $scripts = $xmlConfiguration->xpath( "//wordpress:script" );
-        $this->logger->trace( count($scripts) . " script(s) found in file [$fileName]." );
+        // $this->logger->trace( count($scripts) . " script(s) found in file [$fileName]." );
 
         $this->scripts = array();
         foreach ($scripts as $script) {
             array_push( $this->scripts, $this->getScript( $script ) );
         }
 
-        $this->logger->trace( "Hooking enqueue scripts actions." );
+        // $this->logger->trace( "Hooking enqueue scripts actions." );
         add_action( "admin_enqueue_scripts", array( $this, "queueAdminScripts" ) );
         add_action( "wp_enqueue_scripts", array( $this, "queueUserScripts" ) );
         add_filter( "mce_css", array( $this, "setEditorStyles" ) );
 
         // ***** A J A X S E R V I C E S *****
         $ajaxes = $xmlConfiguration->xpath( "//wordpress:ajax" );
-        $this->logger->trace( count($ajaxes) . " ajax service(s) found in file [$fileName]." );
+        // $this->logger->trace( count($ajaxes) . " ajax service(s) found in file [$fileName]." );
 
         $this->loadAjax( $ajaxes );
 
         // ***** E D I T O R *****
         $editorProperties = $xmlConfiguration->xpath( "//wordpress:editor" );
-        $this->logger->trace( count( $editorProperties ) . " editor option(s) found in file [$fileName]." );
+        // $this->logger->trace( count( $editorProperties ) . " editor option(s) found in file [$fileName]." );
         $this->loadEditorProperties( $editorProperties );
         add_filter( "tiny_mce_before_init", array( $this, "initializeEditorConfiguration") );
 
@@ -251,6 +253,7 @@ class WordPress_XmlApplication {
 
         // ***** A D M I N  M E N U S *****
         $this->adminMenus = $xmlConfiguration->xpath("//wordpress:adminMenu");
+        $this->subAdminMenus = $xmlConfiguration->xpath("//wordpress:subAdminMenu");
         add_action( "admin_menu", array( $this, "loadAdminMenus" ) );
 
         // ***** S E T T I N G S *****
@@ -352,7 +355,9 @@ class WordPress_XmlApplication {
         }
     }
 
+    // refer to http://codex.wordpress.org/Function_Reference/add_menu_page
     public function loadAdminMenus() {
+
         if ( NULL === $this->adminMenus )
             return;
 
@@ -375,14 +380,68 @@ class WordPress_XmlApplication {
             if ( empty( $menuSlug ) )
                 $this->logger->error( "The menuSlug attribute is required." );
 
+            $iconUrl = (string) $attributes->iconUrl;
+            $position = (string) $attributes->position;
+
             $class = (string) $attributes->class;
             $method = (string) $attributes->method;
+
             if ( ! empty( $class ) && ! empty( $method ) ) {
                 $instance = $this->getClass( $class, $this->rootFolder, $this->xmlConfiguration );
-                add_options_page( $pageTitle, $menuTitle, $capability, $menuSlug, array( $instance, $method ) );
+                $hookName = add_menu_page( $pageTitle, $menuTitle, $capability, $menuSlug, array( $instance, $method ), $iconUrl, $position );
             }
             else
-                add_options_page( $pageTitle, $menuTitle, $capability, $menuSlug );
+                $hookName = add_menu_page( $pageTitle, $menuTitle, $capability, $menuSlug, NULL, $iconUrl, $position );
+
+            // $this->logger->trace( "menu added [ pageTitle :: $pageTitle ][ menuTitle :: $menuTitle ][ capability :: $capability ][ menuSlug :: $menuSlug ][ hookName :: $hookName ]." );
+        }
+
+        $this->loadSubAdminMenus();
+    }
+
+    public function loadSubAdminMenus() {
+
+        if ( NULL === $this->subAdminMenus )
+            return;
+
+        foreach ( $this->subAdminMenus as $menu ) {
+            $attributes = $menu->attributes();
+
+            $parentSlug = (string) $attributes->parentSlug;
+            if ( empty( $parentSlug ) )
+                $this->logger->error( "The parentSlug attribute is required." );
+
+            $pageTitle = (string) $attributes->pageTitle;
+            if ( empty( $pageTitle ) )
+                $this->logger->error( "The pageTitle attribute is required." );
+
+            $menuTitle = (string) $attributes->menuTitle;
+            if ( empty( $menuTitle ) )
+                $this->logger->error( "The menuTitle attribute is required." );
+
+            $capability = (string) $attributes->capability;
+            if ( empty( $capability ) )
+                $this->logger->error( "The capability attribute is required." );
+
+            $menuSlug = (string) $attributes->menuSlug;
+            if ( empty( $menuSlug ) )
+                $this->logger->error( "The menuSlug attribute is required." );
+
+            // $iconUrl = (string) $attributes->iconUrl;
+            // $position = (string) $attributes->position;
+
+            $class = (string) $attributes->class;
+            $method = (string) $attributes->method;
+
+            // add_submenu_page( $parent_slug, $page_title, $menu_title, $capability, $menu_slug, $function );
+            if ( ! empty( $class ) && ! empty( $method ) ) {
+                $instance = $this->getClass( $class, $this->rootFolder, $this->xmlConfiguration );
+                $hookName = add_submenu_page( $parentSlug, $pageTitle, $menuTitle, $capability, $menuSlug, array( $instance, $method ) );
+            }
+            else
+                $hookName = add_submenu_page( $parentSlug, $pageTitle, $menuTitle, $capability, $menuSlug, NULL );
+
+            // $this->logger->trace( "menu added [ pageTitle :: $pageTitle ][ menuTitle :: $menuTitle ][ capability :: $capability ][ menuSlug :: $menuSlug ][ hookName :: $hookName ]." );
         }
 
     }
@@ -404,12 +463,12 @@ class WordPress_XmlApplication {
             $this->loadClass( $class );
             $className = $this->getClassName( $class );
 
-            $this->logger->trace( "Found a widget [ classID :: $classID ][ className:: $className ]." );
+            // $this->logger->trace( "Found a widget [ classID :: $classID ][ className:: $className ]." );
 
             register_widget( $className );
         }
 
-        $this->logger->trace( count( $this->widgets ) . " widget(s) loaded." );
+        // $this->logger->trace( count( $this->widgets ) . " widget(s) loaded." );
     }
 
     private function loadEditorProperties( $properties ) {
@@ -433,7 +492,7 @@ class WordPress_XmlApplication {
 
     public function initializeEditorConfiguration( $configuration ) {
 
-        $this->logger->trace( "Initializing the Editor configuration." );
+        // $this->logger->trace( "Initializing the Editor configuration." );
 
         foreach ( $this->editorProperties as $property => $value )
             if ( in_array( $property, $configuration ) && ! empty( $configuration[ $property] ) )
@@ -526,7 +585,7 @@ class WordPress_XmlApplication {
             if ( "" === $method )
                 throw new Exception( "An Ajax method is missing the method name." );
 
-            $this->logger->trace( "Binding $action to method $class::$method [authentication :: $authentication][capabilities :: $capabilities][compression :: $compression][ httpMethod :: $httpMethod ]." );
+            // $this->logger->trace( "Binding $action to method $class::$method [authentication :: $authentication][capabilities :: $capabilities][compression :: $compression][ httpMethod :: $httpMethod ]." );
 
             /** @var WordPress_AjaxService $ajaxService */
             $ajaxService = $this->getClass( $service );
@@ -561,7 +620,7 @@ class WordPress_XmlApplication {
             $priority = (string) $attributes->priority;
             $acceptedArguments = (string) $attributes->acceptedArguments;
 
-            $this->logger->trace( "A $type [$name] has been found [priority :: $priority][acceptedArguments :: $acceptedArguments]." );
+            // $this->logger->trace( "A $type [$name] has been found [priority :: $priority][acceptedArguments :: $acceptedArguments]." );
 
             $class = $this->getClass( $class, $this->rootFolder, $this->xmlConfiguration );
             if ( "" !== $priority && "" !== $acceptedArguments )
@@ -574,10 +633,10 @@ class WordPress_XmlApplication {
     }
 
     public function loadMetaBoxesCallback() {
-        $this->logger->trace( "Adding " . count( $this->metaBoxes ) . " metabox callback(s).");
+        // $this->logger->trace( "Adding " . count( $this->metaBoxes ) . " metabox callback(s).");
 
         foreach ( $this->metaBoxes as $metaBox ) {
-            $this->logger->trace("Adding meta-box [id :: " . $metaBox["id"] . "][title :: " . $metaBox["title"] . "][postType :: " . $metaBox["postType"] . "][context :: " . $metaBox["context"] . "][priority :: " . $metaBox["priority"] . "].");
+            // $this->logger->trace("Adding meta-box [id :: " . $metaBox["id"] . "][title :: " . $metaBox["title"] . "][postType :: " . $metaBox["postType"] . "][context :: " . $metaBox["context"] . "][priority :: " . $metaBox["priority"] . "].");
 
             add_meta_box( $metaBox["id"], $metaBox["title"], $metaBox["callback"], $metaBox["postType"], $metaBox["context"], $metaBox["priority"] );
         }
@@ -617,7 +676,7 @@ class WordPress_XmlApplication {
             if (NULL === $instance || false === method_exists( $instance, "getHtml"))
                 throw new Exception( "A metaBox configuration is invalid. The referenced class does not exist or does not support the getHtml method." );
 
-            $this->logger->trace( "Registering meta-box [$id]." );
+            // $this->logger->trace( "Registering meta-box [$id]." );
 
             array_push(
                 $this->metaBoxes,
@@ -645,7 +704,7 @@ class WordPress_XmlApplication {
 
     private function queueScripts( $target ) {
 
-        $this->logger->trace( "Queuing styles for target [$target]." );
+        // $this->logger->trace( "Queuing styles for target [$target]." );
 
         foreach ( $this->styles as $style ) {
             if ( $target !== $style["target"])
@@ -662,7 +721,7 @@ class WordPress_XmlApplication {
         }
 
 
-        $this->logger->trace( "Queuing scripts for target [$target]." );
+        // $this->logger->trace( "Queuing scripts for target [$target]." );
 
         foreach ( $this->scripts as $script ) {
             if ( $target !== $script["target"])
@@ -689,7 +748,7 @@ class WordPress_XmlApplication {
      */
     public function setEditorStyles( $styles ) {
 
-        $this->logger->trace( "Setting styles for the editor." );
+        // $this->logger->trace( "Setting styles for the editor." );
 
         foreach ( $this->styles as $style ) {
             if ( WordPress_XmlApplication::TARGET_EDITOR !== $style[ "target" ] )
@@ -846,12 +905,12 @@ class WordPress_XmlApplication {
                 if ( false === file_exists($rootFolder . $dependsOnFileName) )
                     throw new Exception( "The file [$dependsOnFileName] is not found, it is required by [$classID]." );
 
-                $this->logger->trace( "Including dependency [$dependsOnFileName]." );
+                // $this->logger->trace( "Including dependency [$dependsOnFileName]." );
 
                 require_once( $rootFolder . $dependsOnFileName);
             }
 
-            $this->logger->trace( "Including class filename [$fileName]." );
+            // $this->logger->trace( "Including class filename [$fileName]." );
             require_once( $rootFolder . $fileName);
         }
 
@@ -865,13 +924,13 @@ class WordPress_XmlApplication {
         if (NULL === $xmlConfiguration)
             $xmlConfiguration = $this->xmlConfiguration;
 
-        $this->logger->trace( "Loading class [$classID][rootFolder :: $rootFolder]." );
+        // $this->logger->trace( "Loading class [$classID][rootFolder :: $rootFolder]." );
 
         // get the class definition: class name and its filename.
         $class = $this->getClassDefinition( $classID );
         $this->loadClass( $class );
 
-        $this->logger->trace( "Creating an instance of class [$classID]." );
+        // $this->logger->trace( "Creating an instance of class [$classID]." );
 
         // create a new class instance.
         if ( NULL === $instance ) {
@@ -893,12 +952,12 @@ class WordPress_XmlApplication {
 
             // set a property reference.
             if ( "" !== $propertyReference) {
-                $this->logger->trace( "Looking for [$propertyReference] referenced by [$classID]." );
+                // $this->logger->trace( "Looking for [$propertyReference] referenced by [$classID]." );
                 $reference = $this->getClass( $propertyReference, $rootFolder, $xmlConfiguration );
                 $reflectionClass->getProperty( $propertyName )->setValue( $instance, $reference );
             } else {
                 // set a property value.
-                $this->logger->trace( "Setting [$propertyName] to [$propertyValue] for [$classID]." );
+                // $this->logger->trace( "Setting [$propertyName] to [$propertyValue] for [$classID]." );
                 $reflectionClass->getProperty( $propertyName )->setValue( $instance, $propertyValue );
             }
         }
@@ -911,12 +970,12 @@ class WordPress_XmlApplication {
         if (true === $reflectionClass->hasProperty( self::APPLICATION_CONTEXT_PROPERTY ))
             $reflectionClass->getProperty( self::APPLICATION_CONTEXT_PROPERTY )->setValue( $instance, $this );
 
-        $this->logger->trace( "Returning an instance of class [$classID]." );
+        // $this->logger->trace( "Returning an instance of class [$classID]." );
 
         return $instance;
     }
 
-    private function getLogger( $fileName ) {
+    public static function getLogger( $fileName ) {
 
         if (false === file_exists( $fileName ))
             throw new Exception( "The Logger configuration file [$fileName] was not found." );
