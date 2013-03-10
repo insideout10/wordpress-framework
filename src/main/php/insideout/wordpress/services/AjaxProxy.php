@@ -4,8 +4,36 @@
  * Date: 21/07/12 10:15
  */
 
+if (!function_exists("getallheaders"))
+{ 
+    function getallheaders()
+    {
+        foreach($_SERVER as $key=>$value)
+        { 
+            if (substr($key, 0, 5) === "HTTP_")
+            { 
+                $key = str_replace(
+                    " ",
+                    "-",
+                    ucwords(
+                        strtolower(
+                            str_replace("_", " ", substr($key, 5))
+                        )
+                    )
+                );
+                $out[$key]=$value; 
+            }
+            else
+            { 
+                $out[$key]=$value;
+            } 
+        } 
+        return $out; 
+    } 
+}
 
-class WordPress_AjaxProxy {
+class WordPress_AjaxProxy
+{
 
     const REQUEST_BODY = "requestBody";
     const HEADERS = "headers";
@@ -25,7 +53,8 @@ class WordPress_AjaxProxy {
 
     private $logger;
 
-    function __construct( $action, $jsonService, $logger) {
+    function __construct($action, $jsonService, $logger)
+    {
         $this->action = $action;
         $this->jsonService = $jsonService;
         $this->logger = $logger;
@@ -125,8 +154,9 @@ class WordPress_AjaxProxy {
                 continue;
             }
 
-            if (self::HEADERS === $parameterName) {
-                array_push( $args, getallheaders() );
+            if (self::HEADERS === $parameterName)
+            {
+                array_push($args, getallheaders());
                 continue;
             }
 
